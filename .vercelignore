@@ -1,0 +1,9 @@
+node_modules
+tests
+test-results
+scripts
+.git
+.gitignore
+.silab-test.cjs
+package.json
+package-lock.json

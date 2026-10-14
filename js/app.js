@@ -1,5 +1,38 @@
 "use strict";
 
+/**
+ * ============================================================================
+ * SILAB FISIKA UNSIL - APLIKASI WEB LABORATORIUM STATIS
+ * ============================================================================
+ *
+ * File ini mengontrol seluruh logika interaktif aplikasi SILAB:
+ * - Routing halaman tanpa reload (SPA berbasis hash #halaman-1 s/d #halaman-6)
+ * - Katalog alat fisika dengan live search, filter kategori, dan modal kartu alat/SOP
+ * - Daftar praktikum 7 semester dan modul-modulnya
+ * - Integrasi formulir peminjaman & Berita Acara (Google Form)
+ * - Tabel tarif layanan dan ilustrasi eksperimen SVG
+ *
+ * PETUNJUK UNTUK PENGEMBANG / PROMPT AI:
+ * 1. Tambah Alat Baru: Cukup tambahkan objek baru ke array `equipmentData` di bawah.
+ * 2. Tambah Praktikum: Cukup tambahkan data ke array `courses`.
+ * 3. Sanitasi: Selalu gunakan `escapeHTML()` saat memasukkan teks ke dalam innerHTML
+ *    untuk mencegah celah keamanan (XSS) dan menjaga keutuhan struktur DOM.
+ * ============================================================================
+ */
+
+/* ============================================================================
+   1. DATA MASTER ALAT LABORATORIUM (KATALOG & SOP)
+   ============================================================================
+   Setiap item mewakili satu instrumen laboratorium.
+   Format objek:
+   - code: string unik kode katalog (misal: "FIS-OPT-001")
+   - name: nama lengkap instrumen
+   - category: kategori bidang fisika (akan otomatis menjadi opsi filter dropdown)
+   - location: usulan tempat penyimpanan di lab
+   - specs: ringkasan spesifikasi teknis
+   - calibrationPlan: rekomendasi jadwal kalibrasi dan verifikasi berkala
+   - sop: array langkah-langkah SOP pengoperasian ringkas (1 per baris)
+   ============================================================================ */
 const equipmentData = [
   {
     code: "FIS-OPT-001",
@@ -138,6 +171,11 @@ const equipmentData = [
   nextMaintenance: "Tanggal ditetapkan laboran setelah verifikasi",
 }));
 
+/* ============================================================================
+   2. DATA MASTER PRAKTIKUM (7 SEMESTER)
+   ============================================================================
+   Format tuple: [Kode MK, Semester Romawi, Nama Mata Kuliah, [Array Modul]]
+   ============================================================================ */
 const courses = [
   [
     "LAB-FIS-101",
@@ -201,6 +239,12 @@ const courses = [
   ],
 ];
 
+/* ============================================================================
+   3. DEFINISI FORMULIR PEMINJAMAN & BERITA ACARA
+   ============================================================================
+   Format tuple: [keyConfig, Judul Formulir, Deskripsi Singkat]
+   Tautan aktif diambil dari window.SILAB_CONFIG.forms[keyConfig].
+   ============================================================================ */
 const formDefinitions = [
   [
     "room",
@@ -223,8 +267,21 @@ const formDefinitions = [
     "Catat kondisi akhir, kelengkapan, dan temuan setelah pemeriksaan bersama laboran.",
   ],
 ];
+
+// Membaca objek konfigurasi global dari js/config.js
 const config = window.SILAB_CONFIG || {};
+
+/* ============================================================================
+   4. FUNGSI UTILITAS & SANITASI
+   ============================================================================ */
+
+/** Mengambil elemen DOM berdasarkan ID */
 const byId = (id) => document.getElementById(id);
+
+/**
+ * Sanitasi string untuk mencegah kerentanan XSS saat merender HTML dinamis.
+ * Selalu lewatkan data dinamis ke fungsi ini sebelum digabungkan ke innerHTML.
+ */
 const escapeHTML = (value) =>
   String(value).replace(
     /[&<>"']/g,
@@ -233,18 +290,41 @@ const escapeHTML = (value) =>
         char
       ],
   );
+
+/** Mengubah array string menjadi daftar tag <li> yang sudah disanitasi */
 const listHTML = (items) =>
   items.map((item) => `<li>${escapeHTML(item)}</li>`).join("");
+
+// Menyimpan elemen yang memicu pembukaan modal untuk pemulihan fokus saat modal ditutup
 let modalOpener;
+
+// Media query untuk mendeteksi breakpoint navigasi seluler (lebar <= 60rem / 960px)
 const menuMedia = window.matchMedia("(max-width: 60rem)");
 menuMedia.addEventListener("change", () => setMenu(false));
 
+/* ============================================================================
+   5. KONTROL DRAWER MENU SELULER (RESPONSIVE NAVBAR)
+   ============================================================================ */
+
+/**
+ * Membuka atau menutup menu navigasi mobile drawer
+ * @param {boolean} open Status buka/tutup menu
+ */
 function setMenu(open) {
   byId("menuToggle").setAttribute("aria-expanded", String(open));
   byId("navigation").classList.toggle("open", open);
   byId("navigation").hidden = menuMedia.matches && !open;
 }
 
+/* ============================================================================
+   6. CLIENT-SIDE ROUTER / NAVIGASI HALAMAN (SPA)
+   ============================================================================ */
+
+/**
+ * Berpindah antar seksi halaman berdasarkan hash URL (#halaman-1 s/d #halaman-6).
+ * Memperbarui status seksi yang aktif, tombol navigasi, dan judul halaman.
+ * @param {boolean} focus Menentukan apakah fokus keyboard dipindahkan ke judul seksi
+ */
 function switchPage(focus = true) {
   const hash = location.hash.slice(1);
   if (hash === "main") {
@@ -252,26 +332,42 @@ function switchPage(focus = true) {
     return;
   }
   if (byId("kartuAlatModal").open) closeKartuAlat();
+
+  // Validasi hash: hanya terima halaman-1 sampai halaman-6; fallback ke halaman-1
   const target = /^halaman-[1-6]$/.test(hash) ? hash : "halaman-1";
   if (hash !== target) history.replaceState(null, "", `#${target}`);
+
+  // Tampilkan hanya seksi halaman yang aktif
   document.querySelectorAll(".page-section").forEach((section) => {
     section.hidden = section.id !== target;
     section.classList.toggle("active", section.id === target);
   });
+
+  // Perbarui status tombol navigasi dan atribut ARIA
   document.querySelectorAll(".nav-btn").forEach((link) => {
     link.classList.toggle("active", link.hash === `#${target}`);
     if (link.hash === `#${target}`) link.setAttribute("aria-current", "page");
     else link.removeAttribute("aria-current");
   });
+
   setMenu(false);
   const heading = byId(target).querySelector("h1");
   document.title = `${document.querySelector('.nav-btn[aria-current="page"]').textContent} | SILAB FISIKA UNSIL`;
+
   if (focus) {
     heading.focus({ preventScroll: true });
     window.scrollTo(0, 0);
   }
 }
 
+/* ============================================================================
+   7. PENCARIAN & FILTER KATALOG ALAT
+   ============================================================================ */
+
+/**
+ * Merender daftar kartu alat berdasarkan kata kunci pencarian dan filter kategori.
+ * Menangani tampilan kosong (empty state) jika tidak ada alat yang cocok.
+ */
 function renderCatalog() {
   const query = byId("searchEquipment").value.trim().toLocaleLowerCase("id");
   const category = byId("categoryFilter").value;
@@ -295,6 +391,15 @@ function renderCatalog() {
     : '<div class="empty-state"><h2>Tidak ada alat yang cocok</h2><p>Coba kata kunci lain atau gunakan tombol Reset filter.</p></div>';
 }
 
+/* ============================================================================
+   8. MODAL DIALOG KARTU ALAT & SOP CETAK
+   ============================================================================ */
+
+/**
+ * Membuka modal dialog rincian kartu alat dan SOP pengoperasian.
+ * Mengunci fokus keyboard di dalam modal untuk kepatuhan aksesibilitas WCAG.
+ * @param {string} code Kode unik alat (misal: "FIS-OPT-001")
+ */
 function openKartuAlat(code) {
   const item = equipmentData.find((equipment) => equipment.code === code);
   if (!item) return;
@@ -318,10 +423,21 @@ function openKartuAlat(code) {
   byId("closeModal").focus();
 }
 
+/** Menutup modal dialog dan memulihkan fokus keyboard ke elemen pemanggil */
 function closeKartuAlat() {
   byId("kartuAlatModal").close();
 }
 
+/* ============================================================================
+   9. INTEGRASI FORMULIR LAYANAN (GOOGLE FORMS)
+   ============================================================================ */
+
+/**
+ * Memvalidasi format URL Google Form resmi untuk keamanan
+ * Hanya mengizinkan protokol HTTPS ke domain docs.google.com atau forms.gle
+ * @param {string} value String URL yang akan divalidasi
+ * @returns {string|null} URL yang bersih atau null jika tidak valid
+ */
 function googleFormURL(value) {
   try {
     const url = new URL(value);
@@ -336,6 +452,11 @@ function googleFormURL(value) {
   }
 }
 
+/**
+ * Merender kartu formulir peminjaman dan berita acara.
+ * Jika URL terkonfigurasi di SILAB_CONFIG.forms, tombol menjadi tautan langsung.
+ * Jika belum, tombol memicu status informatif dan tautan email permintaan.
+ */
 function renderForms() {
   byId("formsContainer").innerHTML = formDefinitions
     .map(([key, title, description], index) => {
@@ -345,6 +466,11 @@ function renderForms() {
     .join("");
 }
 
+/* ============================================================================
+   10. GALERI SKEMATIK EKSPERIMEN (VEKTOR SVG)
+   ============================================================================ */
+
+/** Merender 4 ilustrasi skematik eksperimen optik, mekanika, dan elektronika */
 function renderGallery() {
   const gallery = [
     [
@@ -376,22 +502,42 @@ function renderGallery() {
     .join("");
 }
 
+/* ============================================================================
+   11. INITIALISASI UTAMA & PENDAFTARAN EVENT LISTENERS
+   ============================================================================ */
+
+/**
+ * Menyiapkan data awal saat halaman pertama kali dimuat:
+ * - Menampilkan jam layanan dari konfigurasi
+ * - Merender daftar 7 mata kuliah praktikum
+ * - Mengisi dropdown kategori filter secara dinamis dari data alat
+ * - Merender tabel tarif layanan
+ * - Mendaftarkan listener interaktif (pencarian, filter, modal, navigasi)
+ */
 function init() {
+  // Jam layanan dari konfigurasi
   if (typeof config.serviceHours === "string" && config.serviceHours.trim())
     byId("serviceHours").textContent = config.serviceHours;
+
+  // Render mata kuliah praktikum
   byId("courseList").innerHTML = courses
     .map(
       ([code, semester, title, modules]) =>
         `<article class="course"><div class="course-meta"><small>Semester ${semester}</small><strong>${code}</strong></div><div class="course-content"><h2>${title}</h2><ul class="module-list">${listHTML(modules)}</ul><p class="coordinator"><strong>Koordinator:</strong> Dosen pengampu ${title}; penugasan belum dikonfirmasi program studi.</p></div></article>`,
     )
     .join("");
+
+  // Isi dropdown kategori filter berdasarkan kategori alat yang ada
   equipmentData.forEach((item) =>
     byId("categoryFilter").add(new Option(item.category, item.category)),
   );
+
   byId("courseList").insertAdjacentHTML(
     "afterbegin",
     '<p class="source-note">Rancangan praktikum: kode, semester, dan modul perlu dicocokkan dengan kurikulum UNSIL yang berlaku.</p>',
   );
+
+  // Render daftar layanan dan tarif
   const services = [
     ...equipmentData.map((item) => item.name),
     "Praktikum terjadwal / penggunaan ruang",
@@ -407,16 +553,22 @@ function init() {
         `<tr><th scope="row">${escapeHTML(service)}</th><td>Menunggu tarif resmi</td><td>Menunggu tarif resmi</td><td>Menunggu tarif resmi</td></tr>`,
     )
     .join("");
+
+  // Render komponen dinamis
   renderGallery();
   renderForms();
   renderCatalog();
   switchPage(false);
+
+  // Listener navigasi hash URL
   window.addEventListener("hashchange", () => switchPage());
   document.querySelectorAll('a[href^="#halaman-"]').forEach((link) =>
     link.addEventListener("click", () => {
       if (link.hash === location.hash) switchPage();
     }),
   );
+
+  // Listener toggle menu mobile
   byId("menuToggle").addEventListener("click", () =>
     setMenu(byId("menuToggle").getAttribute("aria-expanded") !== "true"),
   );
@@ -432,6 +584,8 @@ function init() {
       byId("menuToggle").focus();
     }
   });
+
+  // Listener pencarian dan filter katalog
   byId("searchEquipment").addEventListener("input", renderCatalog);
   byId("categoryFilter").addEventListener("change", renderCatalog);
   byId("resetFilters").addEventListener("click", () => {
@@ -440,16 +594,22 @@ function init() {
     renderCatalog();
     byId("searchEquipment").focus();
   });
+
+  // Listener delegasi klik untuk tombol "Lihat kartu alat & SOP"
   byId("catalogContainer").addEventListener("click", (event) => {
     const button = event.target.closest("[data-equipment]");
     if (button) openKartuAlat(button.dataset.equipment);
   });
+
+  // Listener penutupan modal dialog
   byId("closeModal").addEventListener("click", closeKartuAlat);
   byId("closeModalBottom").addEventListener("click", closeKartuAlat);
   byId("kartuAlatModal").addEventListener("close", () => {
     document.body.classList.remove("modal-open");
     if (modalOpener?.isConnected) modalOpener.focus();
   });
+
+  // Menutup modal jika klik di latar belakang (backdrop)
   byId("kartuAlatModal").addEventListener("click", (event) => {
     if (event.target !== byId("kartuAlatModal")) return;
     const bounds = event.target.getBoundingClientRect();
@@ -461,7 +621,11 @@ function init() {
     )
       closeKartuAlat();
   });
+
+  // Tombol cetak kartu alat
   byId("printCard").addEventListener("click", () => window.print());
+
+  // Listener tombol formulir jika tautan Google Form belum diset
   byId("formsContainer").addEventListener("click", (event) => {
     const button = event.target.closest("[data-form]");
     if (!button) return;
@@ -475,6 +639,7 @@ function init() {
   });
 }
 
+// Inisialisasi aplikasi dengan blok penanganan kesalahan
 try {
   init();
 } catch (error) {
