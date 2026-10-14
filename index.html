@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistem Informasi & Inventaris Laboratorium Terpadu Kampus</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Navigasi Utama (6 Halaman) -->
+  <header>
+    <nav class="navbar">
+      <div class="brand">
+        <span class="brand-badge">SILAB</span>
+        <span>Laboratorium Terpadu Kampus</span>
+      </div>
+      <ul class="nav-links">
+        <li><button class="nav-btn active" data-target="halaman-1">1. Beranda</button></li>
+        <li><button class="nav-btn" data-target="halaman-2">2. Disiplin Lab</button></li>
+        <li><button class="nav-btn" data-target="halaman-3">3. Judul Praktikum</button></li>
+        <li><button class="nav-btn" data-target="halaman-4">4. Administrasi (GForm)</button></li>
+        <li><button class="nav-btn" data-target="halaman-5">5. Katalog & Kartu Alat</button></li>
+        <li><button class="nav-btn" data-target="halaman-6">6. Tarif Layanan</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= HALAMAN 1: BERANDA ================= -->
+    <section id="halaman-1" class="page-section active">
+      <div class="hero">
+        <h1>Laboratorium Sains & Rekayasa Terpadu</h1>
+        <p>Pusat fasilitas praktikum akademik, riset inovatif, pengujian sampel, dan pengelolaan inventaris peralatan laboratorium berstandar mutu ISO/IEC 17025.</p>
+      </div>
+
+      <h2 class="section-title">Deskripsi Laboratorium</h2>
+      <div class="card" style="margin-bottom:2rem;">
+        <p>
+          <strong>Laboratorium Sains & Rekayasa Terpadu</strong> merupakan unit penunjang akademik di lingkungan universitas yang melayani kegiatan praktikum mahasiswa, penelitian dosen serta tugas akhir, hingga layanan pengujian bagi masyarakat dan industri. Dilengkapi dengan instrumen analitik modern, sistem manajemen inventaris berbasis kartu alat digital, serta tenaga laboran bersertifikasi untuk menjamin keselamatan kerja dan akurasi pengujian.
+        </p>
+      </div>
+
+      <h2 class="section-title">Visi & Misi</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Visi Laboratorium</h3>
+          <p>Menjadi laboratorium pendidikan dan riset terpadu yang unggul, berstandar internasional, profesional dalam tata kelola peralatan, serta mendukung pengembangan ilmu pengetahuan dan teknologi berkelanjutan.</p>
+        </div>
+        <div class="card">
+          <h3>Misi Laboratorium</h3>
+          <ol class="styled-list">
+            <li>Menyelenggarakan layanan praktikum dan penelitian yang aman, bermutu, dan tepat waktu.</li>
+            <li>Melaksanakan pemeliharaan, perawatan, dan kalibrasi peralatan laboratorium secara berkala.</li>
+            <li>Meningkatkan kompetensi civitas akademika melalui pelatihan instrumen dan keselamatan kerja (K3L).</li>
+            <li>Menyediakan layanan pengujian dan peminjaman fasilitas yang transparan dan akuntabel.</li>
+          </ol>
+        </div>
+      </div>
+
+      <h2 class="section-title">Galeri Fasilitas & Gambar Laboratorium</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=600&q=80" alt="Ruang Instrumen Analitik" />
+          <div class="caption">Ruang Instrumen Analitik & Spektrofotometri</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=80" alt="Ruang Praktikum Kimia & Biologi" />
+          <div class="caption">Ruang Praktikum Kimia & Mikrobiologi</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=80" alt="Area Preparasi Sampel" />
+          <div class="caption">Area Preparasi Sampel & Timbang Presisi</div>
+        </div>
+        <div class="gallery-item">
+          <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80" alt="Ruang Penyimpanan & Inventaris Alat" />
+          <div class="caption">Ruang Penyimpanan & Inventaris Peralatan</div>
+        </div>
+      </div>
+
+      <h2 class="section-title">Alamat & Kontak Laboratorium</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Lokasi & Alamat</h3>
+          <p><strong>Gedung Laboratorium Terpadu Lantai 2 & 3</strong><br>
+          Kampus Utama Universitas, Jl. Pendidikan Raya No. 45, Kota Akademika, Indonesia 15412</p>
+          <p style="margin-top:0.75rem;">
+            <strong>Email:</strong> labterpadu@kampus.ac.id<br>
+            <strong>Telepon / WhatsApp Admin:</strong> (021) 555-0192 / +62 812-3456-7890
+          </p>
+        </div>
+        <div class="card">
+          <h3>Jam Operasional Layanan</h3>
+          <ul class="styled-list">
+            <li><strong>Senin – Kamis:</strong> 08.00 – 16.00 WIB</li>
+            <li><strong>Jumat:</strong> 08.00 – 16.30 WIB (Istirahat 11.30 – 13.00 WIB)</li>
+            <li><strong>Sabtu – Minggu & Hari Libur Nasional:</strong> Tutup (Kecuali izin riset khusus)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HALAMAN 2: DISIPLIN LABORATORIUM ================= -->
+    <section id="halaman-2" class="page-section">
+      <h2 class="section-title">Disiplin Laboratorium</h2>
+      <p style="margin-bottom:1.5rem;">Pedoman keselamatan kerja, tata tertib pengguna, serta prosedur pemeliharaan dan perawatan peralatan laboratorium.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>1. Tata Tertib Laboratorium</h3>
+          <ol class="styled-list">
+            <li>Praktikan dan peneliti wajib hadir 10 menit sebelum jadwal praktikum dimulai.</li>
+            <li>Wajib mengenakan Jas Laboratorium berlengan panjang, sepatu tertutup, dan Alat Pelindung Diri (APD) sesuai standar K3.</li>
+            <li>Dilarang makan, minum, merokok, atau menyimpan makanan di dalam area laboratorium.</li>
+            <li>Wajib mengisi buku log penggunaan alat setiap kali selesai menggunakan instrumen.</li>
+            <li>Menjaga kebersihan meja kerja dan membuang limbah B3 pada wadah khusus yang tersedia.</li>
+            <li>Kerusakan atau kehilangan alat akibat kelalaian pengguna wajib dilaporkan dan diganti sesuai ketentuan.</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>2. Pemeliharaan Alat (Preventive)</h3>
+          <ul class="styled-list">
+            <li><strong>Inspeksi Harian:</strong> Pemeriksaan kondisi fisik kabel daya, indikator lampu, dan kebersihan permukaan sebelum dan sesudah pemakaian.</li>
+            <li><strong>Pengendalian Lingkungan:</strong> Menjaga suhu ruang instrumen (20°C–24°C) dan kelembaban relatif (45%–60%) menggunakan dehumidifier & AC.</li>
+            <li><strong>Pencatatan Logbook:</strong> Setiap alat memiliki Kartu Pemeliharaan dan Log Pemakaian untuk memantau jam operasional.</li>
+            <li><strong>Kalibrasi Berkala:</strong> Melakukan verifikasi dan kalibrasi terstandar setiap 6 atau 12 bulan sekali.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>3. Perawatan Alat (Pembersihan & Perbaikan)</h3>
+          <ul class="styled-list">
+            <li><strong>Perawatan Alat Gelas:</strong> Dicuci dengan deterjen bebas fosfat, dibilas dengan air keran dan akuades, lalu dikeringkan dalam oven pengering.</li>
+            <li><strong>Perawatan Alat Optik:</strong> Lensa mikroskop dan kuvet dibersihkan menggunakan kertas lensa khusus dan larutan pembersih optik.</li>
+            <li><strong>Perawatan Instrumen Elektronik:</strong> Mematikan alat sesuai prosedur shutdown, menutup dengan plastik pelindung debu (dust cover).</li>
+            <li><strong>Penanganan Kerusakan:</strong> Alat yang rusak diberi label <em>"Sedang Dalam Perbaikan"</em> dan dilaporkan ke teknisi resmi untuk servis.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HALAMAN 3: DAFTAR JUDUL PRAKTIKUM ================= -->
+    <section id="halaman-3" class="page-section">
+      <h2 class="section-title">Daftar Judul Praktikum</h2>
+      <p style="margin-bottom:1.5rem;">Daftar mata kuliah praktikum dan modul percobaan yang diselenggarakan di Laboratorium Terpadu pada Tahun Akademik berjalan.</p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Kode MK</th>
+              <th>Mata Kuliah Praktikum</th>
+              <th>Daftar Judul Modul Praktikum</th>
+              <th>Semester</th>
+              <th>Koordinator</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>LAB-101</td>
+              <td>Praktikum Kimia Dasar</td>
+              <td>
+                1. Pengenalan Alat & Keselamatan Kerja Lab<br>
+                2. Pembuatan Larutan & Pengenceran<br>
+                3. Titrasi Asam-Basa (Volumetri)<br>
+                4. Penentuan pH & Larutan Penyangga
+              </td>
+              <td><span class="badge badge-semester">Semester I</span></td>
+              <td>Dr. Rina Kartika, M.Si.</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>LAB-102</td>
+              <td>Praktikum Biologi Umum & Mikroskopi</td>
+              <td>
+                1. Teknik Penggunaan Mikroskop Binokuler<br>
+                2. Pengamatan Sel Tumbuhan & Sel Hewan<br>
+                3. Sterilisasi Alat & Pembuatan Media Agar<br>
+                4. Pewarnaan Gram Bakteri
+              </td>
+              <td><span class="badge badge-semester">Semester II</span></td>
+              <td>Dr. Hendra Wijaya, M.Biomed.</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>LAB-201</td>
+              <td>Praktikum Kimia Analitik Instrumen</td>
+              <td>
+                1. Penentuan Panjang Gelombang Maksimum UV-Vis<br>
+                2. Kurva Kalibrasi & Hukum Lambert-Beer<br>
+                3. Analisis Kadar Besi (Fe) dalam Sampel Air<br>
+                4. Potensiometri & Kalibrasi Elektroda pH
+              </td>
+              <td><span class="badge badge-semester">Semester III</span></td>
+              <td>Ir. Budi Santoso, M.T.</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>LAB-204</td>
+              <td>Praktikum Mikrobiologi Terapan</td>
+              <td>
+                1. Isolasi Mikroba dari Sampel Lingkungan<br>
+                2. Perhitungan Angka Lempeng Total (ALT)<br>
+                3. Uji Sensitivitas Antibiotik (Kirby-Bauer)<br>
+                4. Sentrifugasi & Pemisahan Biomassa
+              </td>
+              <td><span class="badge badge-semester">Semester IV</span></td>
+              <td>apt. Siti Aminah, M.Farm.</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>LAB-302</td>
+              <td>Praktikum Pengujian Mutu & Material</td>
+              <td>
+                1. Analisis Kadar Air & Kadar Abu (Gravimetri)<br>
+                2. Pengujian Viskositas & Densitas Cairan<br>
+                3. Ekstraksi Pelarut & Evaporasi Sampel<br>
+                4. Validasi Metode Pengujian Laboratorium
+              </td>
+              <td><span class="badge badge-semester">Semester V</span></td>
+              <td>Prof. Dr. Eng. Arief Pratama</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= HALAMAN 4: ADMINISTRASI & PEMINJAMAN (GFORM) ================= -->
+    <section id="halaman-4" class="page-section">
+      <h2 class="section-title">Administrasi & Mekanisme Peminjaman</h2>
+      <p style="margin-bottom:1.5rem;">Alur layanan administrasi laboratorium menggunakan integrasi <strong>Google Form (GForm)</strong> untuk pengajuan surat dan berita acara.</p>
+
+      <div class="card" style="margin-bottom:2rem;">
+        <h3>Alur / Mekanisme Peminjaman Laboratorium & Alat</h3>
+        <ol class="styled-list">
+          <li><strong>Cek Ketersediaan:</strong> Pemohon memeriksa ketersediaan alat pada menu <em>Katalog Alat</em> dan jadwal ruang laboratorium.</li>
+          <li><strong>Pengisian GForm Permohonan:</strong> Pemohon mengisi formulir <em>Surat Peminjaman Lab</em> atau <em>Surat Peminjaman Alat</em> minimal 3 hari kerja sebelum kegiatan.</li>
+          <li><strong>Verifikasi Kepala Lab / Laboran:</strong> Admin laboratorium memeriksa kelengkapan dokumen dan memberikan persetujuan.</li>
+          <li><strong>Serah Terima & Berita Acara Peminjaman:</strong> Saat pengambilan alat, pemohon dan laboran memeriksa kondisi fisik alat serta mengisi <em>GForm Berita Acara Peminjaman Alat dan Barang</em>.</li>
+          <li><strong>Pengembalian & Berita Acara Pengembalian:</strong> Setelah selesai digunakan, alat dibersihkan, diperiksa kembali bersama laboran, dan pemohon wajib mengisi <em>GForm Berita Acara Pengembalian</em>.</li>
+        </ol>
+      </div>
+
+      <h2 class="section-title">Portal Formulir Administrasi (Google Form)</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>1. Surat Peminjaman Laboratorium</h3>
+          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
+            Digunakan untuk pengajuan izin penggunaan ruang laboratorium untuk praktikum tambahan, penelitian tugas akhir, atau workshop.
+          </p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_LAB/viewform" target="_blank" rel="noopener" class="btn btn-primary">
+            Isi GForm Peminjaman Lab
+          </a>
+        </div>
+
+        <div class="card">
+          <h3>2. Surat Peminjaman Alat Laboratorium</h3>
+          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
+            Digunakan untuk pengajuan peminjaman instrumen atau peralatan laboratorium baik untuk penggunaan di dalam maupun luar ruang lab.
+          </p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_ALAT/viewform" target="_blank" rel="noopener" class="btn btn-primary">
+            Isi GForm Peminjaman Alat
+          </a>
+        </div>
+
+        <div class="card">
+          <h3>3. Berita Acara Peminjaman Alat dan Barang</h3>
+          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
+            Wajib diisi saat serah terima awal peminjaman sebagai bukti kondisi alat dalam keadaan baik dan lengkap beserta dokumentasi foto.
+          </p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PEMINJAMAN/viewform" target="_blank" rel="noopener" class="btn btn-secondary">
+            Isi GForm BA Peminjaman
+          </a>
+        </div>
+
+        <div class="card">
+          <h3>4. Berita Acara Pengembalian Alat dan Barang</h3>
+          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
+            Wajib diisi saat mengembalikan alat dan barang yang dipinjam setelah diverifikasi kondisinya oleh petugas laboran.
+          </p>
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PENGEMBALIAN/viewform" target="_blank" rel="noopener" class="btn btn-secondary">
+            Isi GForm BA Pengembalian
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HALAMAN 5: KATALOG ALAT & KARTU ALAT ================= -->
+    <section id="halaman-5" class="page-section">
+      <h2 class="section-title">Katalog Alat Laboratorium & Kartu Alat</h2>
+      <p style="margin-bottom:1.25rem;">Gunakan fitur pencarian atau filter kategori di bawah ini. Klik tombol <strong>"Lihat Kartu Alat & SOP"</strong> pada masing-masing alat untuk membuka detail Kartu Alat.</p>
+
+      <div class="filter-bar">
+        <input type="text" id="searchEquipment" placeholder="Cari nama alat, kode inventaris, atau merk..." oninput="renderCatalog()" />
+        <select id="categoryFilter" onchange="renderCatalog()">
+          <option value="ALL">Semua Kategori Alat</option>
+          <option value="Optik & Analisis">Optik & Analisis</option>
+          <option value="Instrumen Kimia">Instrumen Kimia</option>
+          <option value="Pengukuran Dasar">Pengukuran Dasar</option>
+          <option value="Sterilisasi & Termal">Sterilisasi & Termal</option>
+          <option value="Pemisahan Sampel">Pemisahan Sampel</option>
+        </select>
+      </div>
+
+      <div id="catalogContainer" class="grid-3"></div>
+    </section>
+
+    <!-- ================= HALAMAN 6: TARIF LAYANAN ================= -->
+    <section id="halaman-6" class="page-section">
+      <h2 class="section-title">Tarif Layanan Laboratorium</h2>
+      <p style="margin-bottom:1.5rem;">Daftar tarif resmi sewa penggunaan alat, layanan pengujian sampel, dan pemakaian fasilitas laboratorium berdasarkan SK Rektor tentang Tarif Layanan Badan Layanan Umum / Kampus.</p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Layanan / Penggunaan Alat</th>
+              <th>Satuan</th>
+              <th>Mahasiswa Internal</th>
+              <th>Dosen / Peneliti Internal</th>
+              <th>Umum / Instansi Luar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Penggunaan Mikroskop Binokuler Digital</td>
+              <td>Per Jam</td>
+              <td>Rp 15.000</td>
+              <td>Rp 25.000</td>
+              <td>Rp 50.000</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Analisis Spektrofotometer UV-Vis (Scanning / Kuantitatif)</td>
+              <td>Per Sampel</td>
+              <td>Rp 35.000</td>
+              <td>Rp 50.000</td>
+              <td>Rp 100.000</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Penggunaan Neraca Analitik Presisi & Oven Pengering</td>
+              <td>Per Hari</td>
+              <td>Rp 20.000</td>
+              <td>Rp 30.000</td>
+              <td>Rp 60.000</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Sterilisasi Autoklaf (HVE-50)</td>
+              <td>Per Siklus</td>
+              <td>Rp 25.000</td>
+              <td>Rp 35.000</td>
+              <td>Rp 75.000</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Pemakaian Centrifuge Refrigerated</td>
+              <td>Per Jam</td>
+              <td>Rp 30.000</td>
+              <td>Rp 45.000</td>
+              <td>Rp 90.000</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Pengukuran pH Meter & Konduktivitas</td>
+              <td>Per Sampel</td>
+              <td>Rp 10.000</td>
+              <td>Rp 15.000</td>
+              <td>Rp 30.000</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Sewa Ruang Laboratorium untuk Riset Mandiri (Termasuk Fasilitas Dasar)</td>
+              <td>Per Bulan</td>
+              <td>Rp 150.000</td>
+              <td>Rp 250.000</td>
+              <td>Rp 600.000</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Ketentuan Pembayaran Layanan</h3>
+        <ul class="styled-list">
+          <li>Pembayaran dilakukan melalui Virtual Account resmi Universitas setelah permohonan pada halaman Administrasi disetujui.</li>
+          <li>Biaya di atas belum termasuk bahan habis pakai (reagen khusus, pelarut pro-analisis) kecuali disebutkan dalam paket pengujian.</li>
+          <li>Bukti pembayaran wajib diunggah pada saat pengambilan hasil uji atau pengisian Berita Acara.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Detail Kartu Alat -->
+  <div id="kartuAlatModal" class="modal-overlay" onclick="if(event.target === this) closeKartuAlat()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="color:var(--primary);">Kartu Alat & Inventaris Laboratorium</h3>
+        <button class="close-btn" onclick="closeKartuAlat()">&times;</button>
+      </div>
+      <div id="modalKartuBody"></div>
+      <div style="text-align:right; margin-top:1rem;">
+        <button class="btn btn-outline" onclick="window.print()">Cetak Kartu Alat</button>
+        <button class="btn btn-primary" onclick="closeKartuAlat()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Sistem Informasi & Inventaris Laboratorium Terpadu Kampus. All rights reserved.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
