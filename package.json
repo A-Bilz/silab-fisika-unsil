@@ -1,0 +1,16 @@
+{
+  "name": "silab-fisika-unsil",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SILAB Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi",
+  "scripts": {
+    "start": "node scripts/serve.cjs",
+    "test": "node tests/application.cjs",
+    "format": "prettier --write index.html css/style.css js/*.js scripts/*.cjs tests/*.cjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "playwright": "^1.58.0",
+    "prettier": "^3.6.0"
+  }
+}

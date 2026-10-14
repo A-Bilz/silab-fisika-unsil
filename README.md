@@ -1,108 +1,58 @@
-# Website Sistem Informasi & Inventaris Laboratorium Kampus (SILAB)
+# SILAB FISIKA UNSIL
 
-Paket proyek ini berisi kode sumber lengkap untuk website **Peralatan dan Inventaris Laboratorium Kampus** yang terinspirasi dari tata letak bersih bergaya Site123 dan telah memenuhi seluruh 6 spesifikasi halaman yang diminta.
+Aplikasi statis enam halaman untuk Laboratorium Pendidikan Fisika, FKIP, Universitas Siliwangi Kampus I, Tasikmalaya. HTML, CSS, dan JavaScript tanpa framework atau dependensi runtime. Aset eksperimen berupa SVG lokal di sumber; tidak ada foto stok yang diklaim sebagai fasilitas UNSIL.
 
----
+## Menjalankan
 
-## Struktur Direktori Proyek
+Buka `index.html` langsung, atau gunakan Node.js:
 
-```text
-campus_lab_website/
-├── index.html        # Halaman utama dengan sistem navigasi 6 halaman (SPA)
-├── css/
-│   └── style.css     # Desain responsif modern, tabel, katalog, dan modal kartu alat
-├── js/
-│   └── app.js        # Data inventaris laboratorium, pencarian katalog, filter, dan modal Kartu Alat
-└── README.md         # Dokumentasi panduan kustomisasi & deployment untuk AI Agent
+```sh
+npm install
+npm start
 ```
 
----
+Buka http://127.0.0.1:8080. Untuk hosting statis, cukup unggah `index.html`, `css/`, dan `js/`. Server pengembangan hanya mendengarkan localhost. Tidak ada backend, penyimpanan permohonan, atau sistem pembayaran.
 
-## Fitur Lengkap Sesuai Kebutuhan (6 Halaman)
+## Konten dan konfigurasi
 
-1. **Halaman 1 — Beranda (Utama):**
-   - Deskripsi lengkap laboratorium
-   - Galeri gambar fasilitas laboratorium
-   - Alamat, kontak, dan jam operasional
-   - Visi dan Misi laboratorium
-2. **Halaman 2 — Disiplin Laboratorium:**
-   - Tata Tertib Laboratorium
-   - Prosedur Pemeliharaan Alat (Preventive Maintenance)
-   - Prosedur Perawatan Alat (Pembersihan, Kalibrasi, dan Perbaikan)
-3. **Halaman 3 — Daftar Judul Praktikum:**
-   - Tabel daftar mata kuliah praktikum, kode MK, rincian judul modul praktikum per semester, dan nama koordinator.
-4. **Halaman 4 — Administrasi & Mekanisme Peminjaman (Integrasi Google Form):**
-   - Penjelasan mekanisme/alur peminjaman
-   - Tombol tautan Google Form (GForm) untuk:
-     1. Surat Peminjaman Laboratorium
-     2. Surat Peminjaman Alat
-     3. Berita Acara Peminjaman Alat dan Barang
-     4. Berita Acara Pengembalian Alat dan Barang
-5. **Halaman 5 — Katalog Alat Laboratorium & Kartu Alat:**
-   - Katalog peralatan dengan fitur pencarian langsung (live search) dan filter kategori.
-   - **Kartu Alat Digital (Modal Popup & Cetak):** Menampilkan Kode Inventaris, Nama Alat, Merk/Tipe, Spesifikasi, Jumlah, Kondisi, Lokasi Penyimpanan, Tanggal Kalibrasi Terakhir, Jadwal Perawatan Berikutnya, serta SOP ringkas.
-6. **Halaman 6 — Tarif Layanan:**
-   - Tabel rincian tarif sewa alat, layanan analisis sampel, dan pemakaian laboratorium untuk Mahasiswa Internal, Dosen/Peneliti, dan Umum/Instansi Luar.
+- `index.html`: identitas, visi/misi berdasarkan brief, pimpinan, kontak, K3, alur peminjaman, serta struktur enam halaman.
+- `js/app.js`: `equipmentData` (8 alat), 7 praktikum, kartu alat/SOP, pencarian/filter, navigasi hash dan riwayat browser.
+- `js/config.js`: empat URL formulir dan jam layanan yang disetujui pengelola.
+- `css/style.css`: desain responsif dan aturan cetak khusus kartu alat.
 
----
+Isi `SILAB_CONFIG.forms.room`, `equipment`, `checkout`, dan `return` dengan URL HTTPS resmi `forms.gle/...` atau `docs.google.com/forms/...`. Nilai awal `null` sengaja tidak menuju formulir contoh. Selama URL belum tersedia, setiap tombol menampilkan status dan tautan email permintaan formulir. URL yang tidak valid ditolak. Isi `serviceHours` dengan teks jadwal yang telah dikonfirmasi.
 
-## Panduan Kustomisasi (Untuk Admin / AI Agent)
+### Data yang masih memerlukan pengesahan
 
-### 1. Mengganti Link Google Form (GForm)
-Buka file `index.html` pada bagian `<!-- HALAMAN 4: ADMINISTRASI & PEMINJAMAN (GFORM) -->`, lalu ganti URL placeholder berikut dengan link Google Form asli milik laboratorium Anda:
-- `https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_LAB/viewform`
-- `https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_ALAT/viewform`
-- `https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PEMINJAMAN/viewform`
-- `https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PENGEMBALIAN/viewform`
+Tarif dan dokumen penetapannya, jam layanan, URL formulir, nomor aset, model/jumlah unit, kondisi, lokasi, serta riwayat/tanggal kalibrasi tidak tersedia dalam brief. Antarmuka secara eksplisit menandai informasi tersebut belum terverifikasi. Lokasi penyimpanan dan interval pemeriksaan di katalog merupakan usulan, bukan catatan inventaris resmi. Kartu cetak mempertahankan penanda ini. Jangan mengubah status menjadi siap pakai tanpa verifikasi laboran.
 
-### 2. Menambah atau Mengubah Data Alat & Kartu Alat
-Buka file `js/app.js` dan ubah array `equipmentData`. Setiap objek memiliki struktur:
-```javascript
-{
-  code: "LAB-OPT-001",
-  name: "Nama Alat",
-  category: "Optik & Analisis",
-  brand: "Merk / Tipe",
-  quantity: "12 Unit",
-  condition: "Baik / Terkalibrasi",
-  location: "Lemari Optik A-1",
-  lastCalibration: "12 Agustus 2026",
-  nextMaintenance: "12 Februari 2027",
-  specs: "Spesifikasi teknis alat",
-  sop: "Langkah-langkah penggunaan alat"
-}
+Tabel tarif memuat delapan instrumen dan enam kelompok layanan untuk ketiga kelompok pengguna. Untuk memublikasikan nominal, perbarui renderer `ratesBody` dan pemberitahuan tarif setelah menerima dokumen resmi; cantumkan sumber, tanggal berlaku, satuan, dan cakupan setiap tarif. Tidak ada tarif asumsi, klaim gratis, rekening, atau mekanisme pembayaran rekaan.
+
+Kode mata kuliah, daftar modul, akreditasi, jabatan, dan kontak mengikuti detail yang diberikan pemilik proyek. Visi/misi merupakan perumusan dari arah pendidikan dalam brief, bukan kutipan dokumen keputusan. SOP adalah panduan umum; laboran harus menyesuaikannya dengan model aktual, manual pabrikan, penilaian risiko, dan SOP yang disahkan.
+
+## Pengujian
+
+```sh
+npm ci
+npx playwright install chromium
+npm test
 ```
 
----
+Tes menjalankan server lokal sementara dan Chromium headless. Cakupan: enam halaman pada 320, 375, 600, 768, 960, 1280, dan 1440 px; audit axe WCAG A/AA; pencarian gabungan/filter/reset; delapan dialog; fokus keyboard/Escape; cetak; empat tombol formulir dalam keadaan belum tersedia dan terkonfigurasi; URL validation; browser back; deep link; dan ukuran teks 200%. Hasil, tangkapan layar, serta contoh kartu PDF disimpan di `test-results/` (diabaikan Git). Pengujian otomatis tidak menggantikan pengujian dengan pengguna pembaca layar atau perangkat fisik.
 
-## Instruksi Deployment untuk AI Agent (Automated Deployment Guide)
+`npm run format` merapikan seluruh sumber dengan Prettier.
 
-Proyek ini adalah **Static Web Application** murni (HTML5, CSS3, Vanilla JS) tanpa ketergantungan build step yang rumit, sehingga AI Agent dapat langsung melakukan deployment ke berbagai platform:
+## Pilihan desain
 
-### Opsi A: Deploy ke Vercel (via CLI)
-```bash
-npx vercel deploy ./campus_lab_website --prod --yes
-```
+- ENERGY 2 / RHYTHM 2 / MOTION 1: layanan akademik yang tenang dengan hierarki editorial jelas.
+- Emas UNSIL menandai tindakan utama dan halaman aktif; charcoal membingkai identitas, sementara slate menjadi aksen FKIP.
+- Segoe UI/system font menjaga keterbacaan bahasa Indonesia dan akses offline tanpa pengunduhan font.
+- Hero optik memberi konteks eksperimen; seluruh diagram diberi label ilustrasi dan tidak menyerupai lambang universitas.
+- Baris semester memudahkan perbandingan modul; kartu digunakan untuk alat dan formulir yang bisa dipilih secara mandiri.
+- Jarak antarseksi memisahkan informasi akademik, fasilitas, dan kontak; kolom berubah menjadi susunan tunggal pada ponsel.
+- Dialog native memberi penguncian fokus dan Escape; warna fokus serta label input selalu tersedia. Gerak dibatasi pada umpan balik tombol.
 
-### Opsi B: Deploy ke Netlify (via CLI)
-```bash
-npx netlify-cli deploy --dir=./campus_lab_website --prod
-```
+## Referensi eksternal
 
-### Opsi C: Deploy ke GitHub Pages
-1. Inisialisasi repositori Git di dalam folder `campus_lab_website`:
-   ```bash
-   cd campus_lab_website
-   git init
-   git add .
-   git commit -m "Initial commit: Campus Lab Equipment & Inventory Website"
-   ```
-2. Push ke branch `main` pada GitHub dan aktifkan **GitHub Pages** dari branch `main` (root `/`).
-
-### Opsi D: Menjalankan Secara Lokal / Server Docker Nginx
-Untuk pratinjau lokal menggunakan Python:
-```bash
-cd campus_lab_website
-python3 -m http.server 8080
-```
-Atau salin isi folder `campus_lab_website` ke `/usr/share/nginx/html` pada container `nginx:alpine`.
+- [OSHA Laser Hazards](https://www.osha.gov/laser-hazards) dan [Laboratory Safety Guidance](https://www.osha.gov/sites/default/files/publications/OSHA3404laboratory-safety-guidance.pdf) untuk prinsip keselamatan umum, bukan klaim sertifikasi/kepatuhan institusi.
+- [Pengumuman DIFFRACTION](https://jurnal.unsil.ac.id/index.php/Diffraction/announcement) menyatakan perpindahan ke [ejournal.unsil.ac.id/index.php/diffraction](https://ejournal.unsil.ac.id/index.php/diffraction) sejak volume 8, Mei 2026.

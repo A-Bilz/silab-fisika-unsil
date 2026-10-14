@@ -1,421 +1,669 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistem Informasi & Inventaris Laboratorium Terpadu Kampus</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-
-  <!-- Navigasi Utama (6 Halaman) -->
-  <header>
-    <nav class="navbar">
-      <div class="brand">
-        <span class="brand-badge">SILAB</span>
-        <span>Laboratorium Terpadu Kampus</span>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="SILAB FISIKA UNSIL: praktikum, keselamatan, peminjaman, dan katalog Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi, Kampus I Tasikmalaya."
+    />
+    <meta name="theme-color" content="#0f172a" />
+    <title>SILAB FISIKA UNSIL | Laboratorium Pendidikan Fisika</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/config.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Lewati navigasi</a>
+    <header class="site-header">
+      <div class="brand-row wrap">
+        <a class="brand" href="#halaman-1"
+          ><span class="brand-mark" aria-hidden="true">Si<span>Lab</span></span
+          ><span
+            ><strong>SILAB FISIKA UNSIL</strong
+            ><small>Universitas Siliwangi · Kampus I</small></span
+          ></a
+        ><span class="faculty">Fakultas Keguruan dan Ilmu Pendidikan</span
+        ><button
+          id="menuToggle"
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="navigation"
+        >
+          Menu
+        </button>
       </div>
-      <ul class="nav-links">
-        <li><button class="nav-btn active" data-target="halaman-1">1. Beranda</button></li>
-        <li><button class="nav-btn" data-target="halaman-2">2. Disiplin Lab</button></li>
-        <li><button class="nav-btn" data-target="halaman-3">3. Judul Praktikum</button></li>
-        <li><button class="nav-btn" data-target="halaman-4">4. Administrasi (GForm)</button></li>
-        <li><button class="nav-btn" data-target="halaman-5">5. Katalog & Kartu Alat</button></li>
-        <li><button class="nav-btn" data-target="halaman-6">6. Tarif Layanan</button></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main>
-    <!-- ================= HALAMAN 1: BERANDA ================= -->
-    <section id="halaman-1" class="page-section active">
-      <div class="hero">
-        <h1>Laboratorium Sains & Rekayasa Terpadu</h1>
-        <p>Pusat fasilitas praktikum akademik, riset inovatif, pengujian sampel, dan pengelolaan inventaris peralatan laboratorium berstandar mutu ISO/IEC 17025.</p>
-      </div>
-
-      <h2 class="section-title">Deskripsi Laboratorium</h2>
-      <div class="card" style="margin-bottom:2rem;">
-        <p>
-          <strong>Laboratorium Sains & Rekayasa Terpadu</strong> merupakan unit penunjang akademik di lingkungan universitas yang melayani kegiatan praktikum mahasiswa, penelitian dosen serta tugas akhir, hingga layanan pengujian bagi masyarakat dan industri. Dilengkapi dengan instrumen analitik modern, sistem manajemen inventaris berbasis kartu alat digital, serta tenaga laboran bersertifikasi untuk menjamin keselamatan kerja dan akurasi pengujian.
+      <nav id="navigation" class="wrap navigation" aria-label="Navigasi utama">
+        <a href="#halaman-1" class="nav-btn">Beranda</a
+        ><a href="#halaman-2" class="nav-btn">Disiplin Lab</a
+        ><a href="#halaman-3" class="nav-btn">Judul Praktikum</a
+        ><a href="#halaman-4" class="nav-btn">Administrasi & Peminjaman</a
+        ><a href="#halaman-5" class="nav-btn">Katalog & Kartu Alat</a
+        ><a href="#halaman-6" class="nav-btn">Tarif Layanan</a>
+      </nav>
+    </header>
+    <main id="main" class="wrap" tabindex="-1">
+      <section id="halaman-1" class="page-section" aria-labelledby="homeTitle">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow">Laboratorium Pendidikan Fisika UNSIL</p>
+            <h1 id="homeTitle" tabindex="-1">
+              Dari konsep fisika,<br />menjadi <em>pengalaman nyata.</em>
+            </h1>
+            <p>
+              Ruang belajar, bereksperimen, dan mengembangkan media pembelajaran
+              fisika. Untuk praktikum mahasiswa, penelitian, serta kolaborasi
+              bersama sekolah.
+            </p>
+            <div class="actions">
+              <a class="btn primary" href="#halaman-5">Lihat katalog alat</a
+              ><a class="btn light" href="#halaman-4">Ajukan peminjaman</a>
+            </div>
+            <div class="hero-note">
+              Program Studi Pendidikan Fisika
+              <strong>Akreditasi UNGGUL BAN-PT</strong>
+            </div>
+          </div>
+          <figure class="hero-figure">
+            <svg viewBox="0 0 440 370" role="img" aria-labelledby="opticsTitle">
+              <title id="opticsTitle">
+                Ilustrasi percobaan optik: berkas cahaya melewati prisma
+              </title>
+              <path d="M20 240H420M20 270H420" stroke="#64748b" />
+              <path
+                d="M225 70L125 265H325Z"
+                fill="#273449"
+                stroke="#cbd5e1"
+                stroke-width="2"
+              />
+              <path
+                d="M0 188H164L278 177L440 125M278 177L440 156M278 177L440 188M278 177L440 218"
+                fill="none"
+                stroke="#f59e0b"
+                stroke-width="3"
+              />
+              <path d="M225 70V265" stroke="#64748b" stroke-dasharray="5 7" />
+              <circle cx="164" cy="188" r="5" fill="#fff" />
+              <circle cx="278" cy="177" r="5" fill="#fff" />
+              <g
+                fill="#e2e8f0"
+                font-family="Segoe UI, sans-serif"
+                font-size="13"
+              >
+                <text x="26" y="170">CAHAYA DATANG</text>
+                <text x="193" y="304">PRISMA OPTIK</text>
+                <text x="280" y="92">Dispersi cahaya</text>
+              </g>
+            </svg>
+            <figcaption>
+              01 / Optik & gelombang <span>Ilustrasi prinsip eksperimen</span>
+            </figcaption>
+          </figure>
+        </div>
+        <div class="intro-band">
+          <p>
+            <strong>Belajar melalui pengukuran.</strong> Laboratorium Pendidikan
+            Fisika UNSIL mendukung pembelajaran di FKIP melalui eksperimen
+            mekanika, elektronika, optik, termodinamika, dan fisika modern.
+          </p>
+          <a class="text-link" href="#halaman-3">7 mata kuliah praktikum →</a>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Arah pendidikan</p>
+          <h2>Visi & misi Pendidikan Fisika</h2>
+        </div>
+        <div class="vision-grid">
+          <div class="vision">
+            <h3>Visi</h3>
+            <p>
+              Menjadi pusat inovasi pembelajaran fisika berbasis teknologi,
+              berwawasan kebangsaan, berjiwa wirausaha, dan berkomitmen pada
+              tujuan pembangunan berkelanjutan (SDGs).
+            </p>
+          </div>
+          <div>
+            <h3>Misi</h3>
+            <ol class="numbered">
+              <li>
+                Mengembangkan pembelajaran fisika melalui eksperimen dan
+                pemanfaatan teknologi.
+              </li>
+              <li>
+                Menguatkan penelitian pendidikan fisika dan penerapannya bagi
+                masyarakat.
+              </li>
+              <li>
+                Menumbuhkan wawasan kebangsaan, sikap ilmiah, serta
+                kewirausahaan melalui pengembangan alat peraga.
+              </li>
+              <li>
+                Mendorong penggunaan sumber daya laboratorium yang bertanggung
+                jawab untuk mendukung SDGs.
+              </li>
+            </ol>
+          </div>
+        </div>
+        <div class="section-heading">
+          <p class="eyebrow">Galeri eksperimen</p>
+          <h2>Fisika yang dapat diamati</h2>
+          <p>
+            Ilustrasi skematis alat dan eksperimen, bukan dokumentasi fasilitas
+            aktual.
+          </p>
+        </div>
+        <div id="gallery" class="gallery-grid"></div>
+        <div class="section-heading">
+          <p class="eyebrow">Pengelola program studi</p>
+          <h2>Kepemimpinan akademik</h2>
+        </div>
+        <div class="leadership">
+          <div>
+            <small>Ketua Jurusan</small>
+            <h3>Dr. H. Endang Surahman, M.Pd.</h3>
+          </div>
+          <div>
+            <small>Sekretaris Jurusan</small>
+            <h3>Dr. Rahmat Rizal, M.Pd.</h3>
+          </div>
+          <div>
+            <small>Guru Besar / Pembina · Rektor UNSIL</small>
+            <h3>Prof. Dr. Eng. H. Aripin, IPU., ASEAN Eng.</h3>
+          </div>
+        </div>
+        <div class="contact-grid">
+          <div>
+            <p class="eyebrow">Kunjungi laboratorium</p>
+            <h2>Kampus I, Tasikmalaya</h2>
+            <address>
+              Gedung Laboratorium Kampus I UNSIL<br />Jalan Siliwangi No. 24,
+              Kahuripan, Kec. Tawang,<br />Kota Tasikmalaya, Jawa Barat 46115
+            </address>
+            <a
+              class="text-link"
+              href="https://www.google.com/maps/search/?api=1&query=Universitas+Siliwangi+Jalan+Siliwangi+24+Tasikmalaya"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Buka lokasi di Google Maps ↗</a
+            >
+          </div>
+          <div>
+            <h3>Kontak resmi</h3>
+            <a href="mailto:fisikafkip@unsil.ac.id">fisikafkip@unsil.ac.id</a
+            ><a href="mailto:info@unsil.ac.id">info@unsil.ac.id</a>
+            <p>
+              <a href="tel:+62265330634">(0265) 330634</a> /
+              <a href="tel:+62265330534">330534</a>
+            </p>
+            <a
+              href="https://www.instagram.com/pfisika.unsil/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Instagram @pfisika.unsil ↗</a
+            >
+            <h3 class="spaced">Jam layanan</h3>
+            <p id="serviceHours">
+              Jam layanan belum dikonfirmasi. Hubungi program studi sebelum
+              berkunjung.
+            </p>
+          </div>
+        </div>
+        <a
+          class="journal"
+          href="https://ejournal.unsil.ac.id/index.php/diffraction"
+          target="_blank"
+          rel="noopener noreferrer"
+          ><span
+            ><small>Jurnal ilmiah Pendidikan Fisika</small
+            ><strong>DIFFRACTION</strong>Journal for Physics Education and
+            Applied Physics</span
+          ><span aria-hidden="true">↗</span></a
+        >
+      </section>
+      <section
+        id="halaman-2"
+        class="page-section"
+        hidden
+        aria-labelledby="safetyTitle"
+      >
+        <div class="page-heading">
+          <p class="eyebrow">02 / Disiplin Lab</p>
+          <h1 id="safetyTitle" tabindex="-1">
+            Eksperimen dimulai dari keselamatan.
+          </h1>
+          <p>
+            Tata tertib dan panduan K3 untuk pengguna Laboratorium Pendidikan
+            Fisika UNSIL.
+          </p>
+        </div>
+        <div class="notice">
+          <strong>Sebelum menyalakan alat</strong>
+          <p>
+            Ikuti pengarahan laboran, SOP lokal yang disahkan, dan manual model
+            alat. Panduan ringkas ini tidak menggantikan pelatihan serta izin
+            pengoperasian.
+          </p>
+        </div>
+        <div class="grid-2 safety-grid">
+          <article class="card">
+            <span class="index">01</span>
+            <h2>Tata tertib & buku log</h2>
+            <ul>
+              <li>
+                Gunakan sepatu tertutup dan APD sesuai penilaian risiko; rapikan
+                rambut serta pakaian longgar.
+              </li>
+              <li>
+                Gunakan alat hanya dengan izin dan pendampingan yang sesuai.
+                Dilarang makan, minum, dan bekerja sendiri pada eksperimen
+                berisiko.
+              </li>
+              <li>
+                Isi buku log sebelum dan sesudah pemakaian: nama, waktu, kode
+                alat, tujuan, pengaturan, kondisi, dan temuan.
+              </li>
+              <li>
+                Jaga jalur evakuasi tetap bebas. Kembalikan alat dan laporkan
+                kerusakan kepada laboran.
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="index">02</span>
+            <h2>Listrik & tegangan tinggi</h2>
+            <ul>
+              <li>
+                Laboran memeriksa kabel, pembumian, isolasi, dan batas
+                tegangan/arus sebelum alat diaktifkan.
+              </li>
+              <li>
+                Matikan dan isolasi sumber sebelum merangkai atau mengubah
+                koneksi. Pelepasan muatan kapasitor dan verifikasi bebas
+                tegangan dilakukan petugas kompeten.
+              </li>
+              <li>
+                Jangan membuka catu daya, menyentuh terminal terbuka, atau
+                menonaktifkan interlock.
+              </li>
+              <li>
+                Pada osiloskop, jangan menghubungkan klip ground ke titik
+                bertegangan atau melepaskan protective earth.
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="index">03</span>
+            <h2>Laser & radiasi optik</h2>
+            <ul>
+              <li>
+                Ketahui kelas laser, panjang gelombang, dan bahaya berkas
+                langsung maupun pantulan sebelum bekerja.
+              </li>
+              <li>
+                Jangan menatap berkas atau melihatnya melalui alat optik. Atur
+                lintasan jauh dari tinggi mata dan gunakan penahan berkas.
+              </li>
+              <li>
+                Lepaskan benda reflektif dari lintasan; batasi akses dan gunakan
+                pelindung mata sesuai penilaian risiko laboran.
+              </li>
+              <li>
+                Penyelarasan laser hanya oleh pengguna terlatih mengikuti SOP
+                alat.
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="index">04</span>
+            <h2>Optik, kaca & alat presisi</h2>
+            <ul>
+              <li>
+                Pegang lensa dan prisma pada dudukannya; hindari menyentuh
+                permukaan optik.
+              </li>
+              <li>
+                Gunakan kertas lensa dan cairan yang diizinkan pabrikan. Jangan
+                menggosok lapisan optik dengan tisu biasa.
+              </li>
+              <li>
+                Periksa retakan tabung kaca sebelum digunakan. Jangan memegang
+                kaca panas atau menekan tabung vakum.
+              </li>
+              <li>
+                Pecahan kaca ditangani laboran menggunakan alat bantu dan wadah
+                khusus.
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="index">05</span>
+            <h2>Neraca & kalibrasi</h2>
+            <ul>
+              <li>
+                Letakkan neraca analitik/Ohaus pada meja stabil dan rata;
+                periksa titik nol sebelum menimbang.
+              </li>
+              <li>
+                Gunakan anak timbangan acuan yang sesuai untuk verifikasi, tanpa
+                melampaui kapasitas neraca.
+              </li>
+              <li>
+                Catat penyimpangan. Hentikan penggunaan bila hasil tidak
+                memenuhi toleransi yang ditetapkan.
+              </li>
+              <li>
+                Kalibrasi dilakukan petugas kompeten berdasarkan manual,
+                intensitas penggunaan, dan riwayat alat.
+              </li>
+            </ul>
+          </article>
+          <article class="card">
+            <span class="index">06</span>
+            <h2>Jika terjadi insiden</h2>
+            <ul>
+              <li>
+                Hentikan kegiatan. Putuskan sumber energi hanya bila aman dan
+                beri tahu laboran.
+              </li>
+              <li>
+                Jangan menyentuh korban sengatan sebelum sumber listrik
+                diisolasi oleh petugas.
+              </li>
+              <li>
+                Ikuti jalur evakuasi dan instruksi petugas; minta bantuan medis
+                untuk paparan atau cedera.
+              </li>
+              <li>
+                Tandai alat bermasalah, hentikan pemakaian, dan catat kejadian
+                dalam log.
+              </li>
+            </ul>
+          </article>
+        </div>
+        <p class="source-note">
+          Referensi umum:
+          <a
+            href="https://www.osha.gov/laser-hazards"
+            target="_blank"
+            rel="noopener noreferrer"
+            >OSHA Laser Hazards</a
+          >
+          dan
+          <a
+            href="https://www.osha.gov/sites/default/files/publications/OSHA3404laboratory-safety-guidance.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Laboratory Safety Guidance</a
+          >. Penerapan mengikuti SOP dan penilaian risiko laboratorium.
         </p>
-      </div>
-
-      <h2 class="section-title">Visi & Misi</h2>
-      <div class="grid-2">
-        <div class="card">
-          <h3>Visi Laboratorium</h3>
-          <p>Menjadi laboratorium pendidikan dan riset terpadu yang unggul, berstandar internasional, profesional dalam tata kelola peralatan, serta mendukung pengembangan ilmu pengetahuan dan teknologi berkelanjutan.</p>
-        </div>
-        <div class="card">
-          <h3>Misi Laboratorium</h3>
-          <ol class="styled-list">
-            <li>Menyelenggarakan layanan praktikum dan penelitian yang aman, bermutu, dan tepat waktu.</li>
-            <li>Melaksanakan pemeliharaan, perawatan, dan kalibrasi peralatan laboratorium secara berkala.</li>
-            <li>Meningkatkan kompetensi civitas akademika melalui pelatihan instrumen dan keselamatan kerja (K3L).</li>
-            <li>Menyediakan layanan pengujian dan peminjaman fasilitas yang transparan dan akuntabel.</li>
-          </ol>
-        </div>
-      </div>
-
-      <h2 class="section-title">Galeri Fasilitas & Gambar Laboratorium</h2>
-      <div class="gallery-grid">
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&w=600&q=80" alt="Ruang Instrumen Analitik" />
-          <div class="caption">Ruang Instrumen Analitik & Spektrofotometri</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=600&q=80" alt="Ruang Praktikum Kimia & Biologi" />
-          <div class="caption">Ruang Praktikum Kimia & Mikrobiologi</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=600&q=80" alt="Area Preparasi Sampel" />
-          <div class="caption">Area Preparasi Sampel & Timbang Presisi</div>
-        </div>
-        <div class="gallery-item">
-          <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80" alt="Ruang Penyimpanan & Inventaris Alat" />
-          <div class="caption">Ruang Penyimpanan & Inventaris Peralatan</div>
-        </div>
-      </div>
-
-      <h2 class="section-title">Alamat & Kontak Laboratorium</h2>
-      <div class="grid-2">
-        <div class="card">
-          <h3>Lokasi & Alamat</h3>
-          <p><strong>Gedung Laboratorium Terpadu Lantai 2 & 3</strong><br>
-          Kampus Utama Universitas, Jl. Pendidikan Raya No. 45, Kota Akademika, Indonesia 15412</p>
-          <p style="margin-top:0.75rem;">
-            <strong>Email:</strong> labterpadu@kampus.ac.id<br>
-            <strong>Telepon / WhatsApp Admin:</strong> (021) 555-0192 / +62 812-3456-7890
+      </section>
+      <section
+        id="halaman-3"
+        class="page-section"
+        hidden
+        aria-labelledby="courseTitle"
+      >
+        <div class="page-heading">
+          <p class="eyebrow">03 / Judul Praktikum</p>
+          <h1 id="courseTitle" tabindex="-1">
+            Tujuh semester, berbagai cara menguji teori.
+          </h1>
+          <p>
+            Mata kuliah praktikum Pendidikan Fisika UNSIL, dari pengukuran dasar
+            hingga pengembangan alat peraga sekolah.
           </p>
         </div>
-        <div class="card">
-          <h3>Jam Operasional Layanan</h3>
-          <ul class="styled-list">
-            <li><strong>Senin – Kamis:</strong> 08.00 – 16.00 WIB</li>
-            <li><strong>Jumat:</strong> 08.00 – 16.30 WIB (Istirahat 11.30 – 13.00 WIB)</li>
-            <li><strong>Sabtu – Minggu & Hari Libur Nasional:</strong> Tutup (Kecuali izin riset khusus)</li>
-          </ul>
+        <div id="courseList" class="course-list"></div>
+      </section>
+      <section
+        id="halaman-4"
+        class="page-section"
+        hidden
+        aria-labelledby="adminTitle"
+      >
+        <div class="page-heading">
+          <p class="eyebrow">04 / Administrasi & Peminjaman</p>
+          <h1 id="adminTitle" tabindex="-1">
+            Rencanakan penggunaan laboratorium.
+          </h1>
+          <p>
+            Untuk praktikum mahasiswa, riset skripsi/tugas akhir, serta
+            pelatihan olimpiade fisika bersama sekolah.
+          </p>
         </div>
-      </div>
-    </section>
-
-    <!-- ================= HALAMAN 2: DISIPLIN LABORATORIUM ================= -->
-    <section id="halaman-2" class="page-section">
-      <h2 class="section-title">Disiplin Laboratorium</h2>
-      <p style="margin-bottom:1.5rem;">Pedoman keselamatan kerja, tata tertib pengguna, serta prosedur pemeliharaan dan perawatan peralatan laboratorium.</p>
-
-      <div class="grid-3">
-        <div class="card">
-          <h3>1. Tata Tertib Laboratorium</h3>
-          <ol class="styled-list">
-            <li>Praktikan dan peneliti wajib hadir 10 menit sebelum jadwal praktikum dimulai.</li>
-            <li>Wajib mengenakan Jas Laboratorium berlengan panjang, sepatu tertutup, dan Alat Pelindung Diri (APD) sesuai standar K3.</li>
-            <li>Dilarang makan, minum, merokok, atau menyimpan makanan di dalam area laboratorium.</li>
-            <li>Wajib mengisi buku log penggunaan alat setiap kali selesai menggunakan instrumen.</li>
-            <li>Menjaga kebersihan meja kerja dan membuang limbah B3 pada wadah khusus yang tersedia.</li>
-            <li>Kerusakan atau kehilangan alat akibat kelalaian pengguna wajib dilaporkan dan diganti sesuai ketentuan.</li>
-          </ol>
+        <div class="grid-3 audiences">
+          <article>
+            <h2>Mahasiswa UNSIL</h2>
+            <p>
+              Siapkan identitas, mata kuliah atau judul penelitian, dosen
+              pembimbing, serta daftar alat.
+            </p>
+          </article>
+          <article>
+            <h2>Dosen / peneliti FKIP</h2>
+            <p>
+              Sertakan rencana kegiatan, kebutuhan instrumen, durasi, dan
+              penanggung jawab.
+            </p>
+          </article>
+          <article>
+            <h2>Mitra sekolah</h2>
+            <p>
+              Sertakan surat institusi, jumlah peserta, pendamping, dan
+              kebutuhan pelatihan OSN atau kit fisika.
+            </p>
+          </article>
         </div>
-
-        <div class="card">
-          <h3>2. Pemeliharaan Alat (Preventive)</h3>
-          <ul class="styled-list">
-            <li><strong>Inspeksi Harian:</strong> Pemeriksaan kondisi fisik kabel daya, indikator lampu, dan kebersihan permukaan sebelum dan sesudah pemakaian.</li>
-            <li><strong>Pengendalian Lingkungan:</strong> Menjaga suhu ruang instrumen (20°C–24°C) dan kelembaban relatif (45%–60%) menggunakan dehumidifier & AC.</li>
-            <li><strong>Pencatatan Logbook:</strong> Setiap alat memiliki Kartu Pemeliharaan dan Log Pemakaian untuk memantau jam operasional.</li>
-            <li><strong>Kalibrasi Berkala:</strong> Melakukan verifikasi dan kalibrasi terstandar setiap 6 atau 12 bulan sekali.</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h3>3. Perawatan Alat (Pembersihan & Perbaikan)</h3>
-          <ul class="styled-list">
-            <li><strong>Perawatan Alat Gelas:</strong> Dicuci dengan deterjen bebas fosfat, dibilas dengan air keran dan akuades, lalu dikeringkan dalam oven pengering.</li>
-            <li><strong>Perawatan Alat Optik:</strong> Lensa mikroskop dan kuvet dibersihkan menggunakan kertas lensa khusus dan larutan pembersih optik.</li>
-            <li><strong>Perawatan Instrumen Elektronik:</strong> Mematikan alat sesuai prosedur shutdown, menutup dengan plastik pelindung debu (dust cover).</li>
-            <li><strong>Penanganan Kerusakan:</strong> Alat yang rusak diberi label <em>"Sedang Dalam Perbaikan"</em> dan dilaporkan ke teknisi resmi untuk servis.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= HALAMAN 3: DAFTAR JUDUL PRAKTIKUM ================= -->
-    <section id="halaman-3" class="page-section">
-      <h2 class="section-title">Daftar Judul Praktikum</h2>
-      <p style="margin-bottom:1.5rem;">Daftar mata kuliah praktikum dan modul percobaan yang diselenggarakan di Laboratorium Terpadu pada Tahun Akademik berjalan.</p>
-
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kode MK</th>
-              <th>Mata Kuliah Praktikum</th>
-              <th>Daftar Judul Modul Praktikum</th>
-              <th>Semester</th>
-              <th>Koordinator</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>LAB-101</td>
-              <td>Praktikum Kimia Dasar</td>
-              <td>
-                1. Pengenalan Alat & Keselamatan Kerja Lab<br>
-                2. Pembuatan Larutan & Pengenceran<br>
-                3. Titrasi Asam-Basa (Volumetri)<br>
-                4. Penentuan pH & Larutan Penyangga
-              </td>
-              <td><span class="badge badge-semester">Semester I</span></td>
-              <td>Dr. Rina Kartika, M.Si.</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>LAB-102</td>
-              <td>Praktikum Biologi Umum & Mikroskopi</td>
-              <td>
-                1. Teknik Penggunaan Mikroskop Binokuler<br>
-                2. Pengamatan Sel Tumbuhan & Sel Hewan<br>
-                3. Sterilisasi Alat & Pembuatan Media Agar<br>
-                4. Pewarnaan Gram Bakteri
-              </td>
-              <td><span class="badge badge-semester">Semester II</span></td>
-              <td>Dr. Hendra Wijaya, M.Biomed.</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>LAB-201</td>
-              <td>Praktikum Kimia Analitik Instrumen</td>
-              <td>
-                1. Penentuan Panjang Gelombang Maksimum UV-Vis<br>
-                2. Kurva Kalibrasi & Hukum Lambert-Beer<br>
-                3. Analisis Kadar Besi (Fe) dalam Sampel Air<br>
-                4. Potensiometri & Kalibrasi Elektroda pH
-              </td>
-              <td><span class="badge badge-semester">Semester III</span></td>
-              <td>Ir. Budi Santoso, M.T.</td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>LAB-204</td>
-              <td>Praktikum Mikrobiologi Terapan</td>
-              <td>
-                1. Isolasi Mikroba dari Sampel Lingkungan<br>
-                2. Perhitungan Angka Lempeng Total (ALT)<br>
-                3. Uji Sensitivitas Antibiotik (Kirby-Bauer)<br>
-                4. Sentrifugasi & Pemisahan Biomassa
-              </td>
-              <td><span class="badge badge-semester">Semester IV</span></td>
-              <td>apt. Siti Aminah, M.Farm.</td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td>LAB-302</td>
-              <td>Praktikum Pengujian Mutu & Material</td>
-              <td>
-                1. Analisis Kadar Air & Kadar Abu (Gravimetri)<br>
-                2. Pengujian Viskositas & Densitas Cairan<br>
-                3. Ekstraksi Pelarut & Evaporasi Sampel<br>
-                4. Validasi Metode Pengujian Laboratorium
-              </td>
-              <td><span class="badge badge-semester">Semester V</span></td>
-              <td>Prof. Dr. Eng. Arief Pratama</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ================= HALAMAN 4: ADMINISTRASI & PEMINJAMAN (GFORM) ================= -->
-    <section id="halaman-4" class="page-section">
-      <h2 class="section-title">Administrasi & Mekanisme Peminjaman</h2>
-      <p style="margin-bottom:1.5rem;">Alur layanan administrasi laboratorium menggunakan integrasi <strong>Google Form (GForm)</strong> untuk pengajuan surat dan berita acara.</p>
-
-      <div class="card" style="margin-bottom:2rem;">
-        <h3>Alur / Mekanisme Peminjaman Laboratorium & Alat</h3>
-        <ol class="styled-list">
-          <li><strong>Cek Ketersediaan:</strong> Pemohon memeriksa ketersediaan alat pada menu <em>Katalog Alat</em> dan jadwal ruang laboratorium.</li>
-          <li><strong>Pengisian GForm Permohonan:</strong> Pemohon mengisi formulir <em>Surat Peminjaman Lab</em> atau <em>Surat Peminjaman Alat</em> minimal 3 hari kerja sebelum kegiatan.</li>
-          <li><strong>Verifikasi Kepala Lab / Laboran:</strong> Admin laboratorium memeriksa kelengkapan dokumen dan memberikan persetujuan.</li>
-          <li><strong>Serah Terima & Berita Acara Peminjaman:</strong> Saat pengambilan alat, pemohon dan laboran memeriksa kondisi fisik alat serta mengisi <em>GForm Berita Acara Peminjaman Alat dan Barang</em>.</li>
-          <li><strong>Pengembalian & Berita Acara Pengembalian:</strong> Setelah selesai digunakan, alat dibersihkan, diperiksa kembali bersama laboran, dan pemohon wajib mengisi <em>GForm Berita Acara Pengembalian</em>.</li>
+        <h2 class="section-heading">Alur peminjaman</h2>
+        <ol class="workflow">
+          <li>
+            <h3>Periksa kebutuhan</h3>
+            <p>
+              Lihat katalog lalu konfirmasikan jadwal ruang, kondisi alat, dan
+              pendampingan kepada laboran.
+            </p>
+          </li>
+          <li>
+            <h3>Ajukan permohonan</h3>
+            <p>
+              Isi formulir ruang atau alat dan lampirkan rencana kegiatan serta
+              dokumen pendukung.
+            </p>
+          </li>
+          <li>
+            <h3>Tunggu persetujuan</h3>
+            <p>
+              Pengelola memverifikasi jadwal, keselamatan, dan biaya jika
+              berlaku. Pengajuan belum berarti peminjaman disetujui.
+            </p>
+          </li>
+          <li>
+            <h3>Serah terima & gunakan</h3>
+            <p>
+              Periksa kelengkapan bersama laboran, isi BA Peminjaman, ikuti
+              pengarahan K3 dan buku log.
+            </p>
+          </li>
+          <li>
+            <h3>Periksa & kembalikan</h3>
+            <p>
+              Bersihkan alat sesuai SOP, laporkan temuan, lalu isi BA
+              Pengembalian bersama laboran.
+            </p>
+          </li>
         </ol>
-      </div>
-
-      <h2 class="section-title">Portal Formulir Administrasi (Google Form)</h2>
-      <div class="grid-2">
-        <div class="card">
-          <h3>1. Surat Peminjaman Laboratorium</h3>
-          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
-            Digunakan untuk pengajuan izin penggunaan ruang laboratorium untuk praktikum tambahan, penelitian tugas akhir, atau workshop.
-          </p>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_LAB/viewform" target="_blank" rel="noopener" class="btn btn-primary">
-            Isi GForm Peminjaman Lab
-          </a>
+        <div class="section-heading">
+          <h2>Formulir layanan</h2>
+          <p>Empat formulir Google Form untuk permohonan dan berita acara.</p>
         </div>
-
-        <div class="card">
-          <h3>2. Surat Peminjaman Alat Laboratorium</h3>
-          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
-            Digunakan untuk pengajuan peminjaman instrumen atau peralatan laboratorium baik untuk penggunaan di dalam maupun luar ruang lab.
+        <div id="formsContainer" class="grid-2"></div>
+        <p id="formStatus" role="status" class="notice" hidden></p>
+      </section>
+      <section
+        id="halaman-5"
+        class="page-section"
+        hidden
+        aria-labelledby="catalogTitle"
+      >
+        <div class="page-heading">
+          <p class="eyebrow">05 / Katalog & Kartu Alat</p>
+          <h1 id="catalogTitle" tabindex="-1">
+            Kenali alat sebelum bereksperimen.
+          </h1>
+          <p>
+            Telusuri instrumen fisika, panduan pengoperasian, dan kartu
+            inventaris yang dapat dicetak.
           </p>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_PINJAM_ALAT/viewform" target="_blank" rel="noopener" class="btn btn-primary">
-            Isi GForm Peminjaman Alat
-          </a>
         </div>
-
-        <div class="card">
-          <h3>3. Berita Acara Peminjaman Alat dan Barang</h3>
-          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
-            Wajib diisi saat serah terima awal peminjaman sebagai bukti kondisi alat dalam keadaan baik dan lengkap beserta dokumentasi foto.
+        <div class="notice">
+          <strong>Status inventaris perlu verifikasi laboran.</strong>
+          <p>
+            Delapan jenis alat berikut mengikuti daftar kebutuhan. Kode katalog
+            dan usulan penyimpanan bukan nomor aset atau lokasi terkonfirmasi.
+            Ketersediaan, kondisi, dan riwayat kalibrasi belum ditetapkan.
           </p>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PEMINJAMAN/viewform" target="_blank" rel="noopener" class="btn btn-secondary">
-            Isi GForm BA Peminjaman
-          </a>
         </div>
-
-        <div class="card">
-          <h3>4. Berita Acara Pengembalian Alat dan Barang</h3>
-          <p style="margin-bottom:1rem; font-size:0.92rem; color:var(--text-muted);">
-            Wajib diisi saat mengembalikan alat dan barang yang dipinjam setelah diverifikasi kondisinya oleh petugas laboran.
+        <div class="filter-bar">
+          <div>
+            <label for="searchEquipment">Cari alat</label
+            ><input
+              id="searchEquipment"
+              type="search"
+              placeholder="Nama, kode, atau bidang fisika…"
+              autocomplete="off"
+            />
+          </div>
+          <div>
+            <label for="categoryFilter">Bidang fisika</label
+            ><select id="categoryFilter">
+              <option value="ALL">Semua bidang</option>
+            </select>
+          </div>
+          <button id="resetFilters" class="btn outline">Reset filter</button>
+        </div>
+        <p
+          id="resultCount"
+          class="result-count"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <div id="catalogContainer" class="grid-3">
+          <p>Memuat katalog alat…</p>
+        </div>
+      </section>
+      <section
+        id="halaman-6"
+        class="page-section"
+        hidden
+        aria-labelledby="ratesTitle"
+      >
+        <div class="page-heading">
+          <p class="eyebrow">06 / Tarif Layanan</p>
+          <h1 id="ratesTitle" tabindex="-1">
+            Informasi biaya penggunaan fasilitas.
+          </h1>
+          <p>
+            Layanan instrumen fisika untuk mahasiswa internal UNSIL,
+            dosen/peneliti FKIP, dan siswa SMA, bimbel, serta mitra sekolah
+            luar.
           </p>
-          <a href="https://docs.google.com/forms/d/e/1FAIpQLSd_CONTOH_BA_PENGEMBALIAN/viewform" target="_blank" rel="noopener" class="btn btn-secondary">
-            Isi GForm BA Pengembalian
-          </a>
         </div>
-      </div>
-    </section>
-
-    <!-- ================= HALAMAN 5: KATALOG ALAT & KARTU ALAT ================= -->
-    <section id="halaman-5" class="page-section">
-      <h2 class="section-title">Katalog Alat Laboratorium & Kartu Alat</h2>
-      <p style="margin-bottom:1.25rem;">Gunakan fitur pencarian atau filter kategori di bawah ini. Klik tombol <strong>"Lihat Kartu Alat & SOP"</strong> pada masing-masing alat untuk membuka detail Kartu Alat.</p>
-
-      <div class="filter-bar">
-        <input type="text" id="searchEquipment" placeholder="Cari nama alat, kode inventaris, atau merk..." oninput="renderCatalog()" />
-        <select id="categoryFilter" onchange="renderCatalog()">
-          <option value="ALL">Semua Kategori Alat</option>
-          <option value="Optik & Analisis">Optik & Analisis</option>
-          <option value="Instrumen Kimia">Instrumen Kimia</option>
-          <option value="Pengukuran Dasar">Pengukuran Dasar</option>
-          <option value="Sterilisasi & Termal">Sterilisasi & Termal</option>
-          <option value="Pemisahan Sampel">Pemisahan Sampel</option>
-        </select>
-      </div>
-
-      <div id="catalogContainer" class="grid-3"></div>
-    </section>
-
-    <!-- ================= HALAMAN 6: TARIF LAYANAN ================= -->
-    <section id="halaman-6" class="page-section">
-      <h2 class="section-title">Tarif Layanan Laboratorium</h2>
-      <p style="margin-bottom:1.5rem;">Daftar tarif resmi sewa penggunaan alat, layanan pengujian sampel, dan pemakaian fasilitas laboratorium berdasarkan SK Rektor tentang Tarif Layanan Badan Layanan Umum / Kampus.</p>
-
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Layanan / Penggunaan Alat</th>
-              <th>Satuan</th>
-              <th>Mahasiswa Internal</th>
-              <th>Dosen / Peneliti Internal</th>
-              <th>Umum / Instansi Luar</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>1</td>
-              <td>Penggunaan Mikroskop Binokuler Digital</td>
-              <td>Per Jam</td>
-              <td>Rp 15.000</td>
-              <td>Rp 25.000</td>
-              <td>Rp 50.000</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Analisis Spektrofotometer UV-Vis (Scanning / Kuantitatif)</td>
-              <td>Per Sampel</td>
-              <td>Rp 35.000</td>
-              <td>Rp 50.000</td>
-              <td>Rp 100.000</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Penggunaan Neraca Analitik Presisi & Oven Pengering</td>
-              <td>Per Hari</td>
-              <td>Rp 20.000</td>
-              <td>Rp 30.000</td>
-              <td>Rp 60.000</td>
-            </tr>
-            <tr>
-              <td>4</td>
-              <td>Sterilisasi Autoklaf (HVE-50)</td>
-              <td>Per Siklus</td>
-              <td>Rp 25.000</td>
-              <td>Rp 35.000</td>
-              <td>Rp 75.000</td>
-            </tr>
-            <tr>
-              <td>5</td>
-              <td>Pemakaian Centrifuge Refrigerated</td>
-              <td>Per Jam</td>
-              <td>Rp 30.000</td>
-              <td>Rp 45.000</td>
-              <td>Rp 90.000</td>
-            </tr>
-            <tr>
-              <td>6</td>
-              <td>Pengukuran pH Meter & Konduktivitas</td>
-              <td>Per Sampel</td>
-              <td>Rp 10.000</td>
-              <td>Rp 15.000</td>
-              <td>Rp 30.000</td>
-            </tr>
-            <tr>
-              <td>7</td>
-              <td>Sewa Ruang Laboratorium untuk Riset Mandiri (Termasuk Fasilitas Dasar)</td>
-              <td>Per Bulan</td>
-              <td>Rp 150.000</td>
-              <td>Rp 250.000</td>
-              <td>Rp 600.000</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>Ketentuan Pembayaran Layanan</h3>
-        <ul class="styled-list">
-          <li>Pembayaran dilakukan melalui Virtual Account resmi Universitas setelah permohonan pada halaman Administrasi disetujui.</li>
-          <li>Biaya di atas belum termasuk bahan habis pakai (reagen khusus, pelarut pro-analisis) kecuali disebutkan dalam paket pengujian.</li>
-          <li>Bukti pembayaran wajib diunggah pada saat pengambilan hasil uji atau pengisian Berita Acara.</li>
-        </ul>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal Detail Kartu Alat -->
-  <div id="kartuAlatModal" class="modal-overlay" onclick="if(event.target === this) closeKartuAlat()">
-    <div class="modal-content">
+        <div class="notice">
+          <strong>Tarif resmi belum tersedia untuk dipublikasikan.</strong>
+          <p>
+            Dokumen penetapan tarif dan nominal per kelompok pengguna belum
+            diberikan. Hubungi pengelola untuk konfirmasi biaya; tidak ada
+            nominal atau pembebasan biaya yang diasumsikan.
+          </p>
+        </div>
+        <p class="table-hint">
+          Pada layar kecil, geser tabel untuk melihat seluruh kelompok pengguna.
+        </p>
+        <div
+          class="table-responsive"
+          role="region"
+          aria-label="Tarif layanan per kelompok pengguna"
+          tabindex="0"
+        >
+          <table>
+            <caption>
+              Layanan instrumen dan kegiatan laboratorium
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Layanan</th>
+                <th scope="col">Mahasiswa Internal UNSIL</th>
+                <th scope="col">Dosen/Peneliti FKIP</th>
+                <th scope="col">Siswa SMA / Bimbel / Mitra Sekolah Luar</th>
+              </tr>
+            </thead>
+            <tbody id="ratesBody"></tbody>
+          </table>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h2>Konfirmasi sebelum kegiatan</h2>
+            <p>
+              Sampaikan jenis alat, durasi, jumlah peserta, kebutuhan operator,
+              dan bahan habis pakai. Pengelola mengonfirmasi cakupan layanan
+              serta ketentuan pembayaran yang berlaku.
+            </p>
+            <a
+              class="btn primary"
+              href="mailto:fisikafkip@unsil.ac.id?subject=Permohonan%20informasi%20tarif%20Laboratorium%20Fisika"
+              >Minta informasi tarif resmi</a
+            >
+          </div>
+          <div class="card">
+            <h2>Kegiatan sekolah & OSN</h2>
+            <p>
+              Pengajuan dapat mencakup persiapan olimpiade fisika OSN,
+              pendampingan eksperimen SMA, dan pengujian kit alat peraga. Jadwal
+              dan pendampingan dikonfirmasi sebelum kegiatan.
+            </p>
+            <a class="text-link" href="#halaman-4">Lihat alur pengajuan →</a>
+          </div>
+        </div>
+      </section>
+      <noscript
+        ><div class="notice">
+          Aktifkan JavaScript untuk navigasi halaman, katalog, dan cetak kartu
+          alat. Informasi layanan dapat diminta melalui
+          <a href="mailto:fisikafkip@unsil.ac.id">fisikafkip@unsil.ac.id</a>.
+        </div></noscript
+      >
+    </main>
+    <dialog id="kartuAlatModal" aria-labelledby="modalTitle">
       <div class="modal-header">
-        <h3 style="color:var(--primary);">Kartu Alat & Inventaris Laboratorium</h3>
-        <button class="close-btn" onclick="closeKartuAlat()">&times;</button>
+        <div>
+          <p class="eyebrow">SILAB FISIKA UNSIL</p>
+          <h2 id="modalTitle">Kartu alat & SOP ringkas</h2>
+        </div>
+        <button id="closeModal" class="close-btn" aria-label="Tutup kartu alat">
+          ×
+        </button>
       </div>
       <div id="modalKartuBody"></div>
-      <div style="text-align:right; margin-top:1rem;">
-        <button class="btn btn-outline" onclick="window.print()">Cetak Kartu Alat</button>
-        <button class="btn btn-primary" onclick="closeKartuAlat()">Tutup</button>
+      <div class="modal-actions">
+        <button id="printCard" class="btn primary">Cetak kartu alat</button
+        ><button id="closeModalBottom" class="btn outline">Tutup</button>
       </div>
-    </div>
-  </div>
-
-  <footer>
-    <p>&copy; 2026 Sistem Informasi & Inventaris Laboratorium Terpadu Kampus. All rights reserved.</p>
-  </footer>
-
-  <script src="js/app.js"></script>
-</body>
+    </dialog>
+    <footer>
+      <div class="wrap footer-inner">
+        <div>
+          <strong>SILAB FISIKA UNSIL</strong>
+          <p>
+            Laboratorium Pendidikan Fisika · FKIP<br />Universitas Siliwangi,
+            Kampus I Tasikmalaya
+          </p>
+        </div>
+        <p>
+          © 2026 Universitas Siliwangi<br /><a
+            href="mailto:fisikafkip@unsil.ac.id"
+            >fisikafkip@unsil.ac.id</a
+          >
+        </p>
+      </div>
+    </footer>
+  </body>
 </html>
