@@ -1,0 +1,13 @@
+node_modules/
+tests/
+scripts/
+package.json
+package-lock.json
+.git/
+.gitignore
+.wranglerignore
+test-results/
+.vercel
+.netlify/
+dist/
+scratch*
