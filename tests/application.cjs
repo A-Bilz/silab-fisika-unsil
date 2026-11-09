@@ -195,13 +195,21 @@ const { createServer } = require("../scripts/serve.cjs");
     await page.locator("#closeCartBtn").click();
     assert.equal(await page.locator("#cartDrawer").isVisible(), false);
 
-    // Reopen & Close via Escape
+    // Reopen & Verify Focus Trap & Escape restoration
     await page.locator("#cartFloatingBtn").click();
     assert(await page.locator("#cartDrawer").isVisible());
+    assert.equal(
+      await page.evaluate(() => document.activeElement.id),
+      "closeCartBtn",
+    );
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#cartDrawer").isVisible(), false);
+    assert.equal(
+      await page.evaluate(() => document.activeElement.id),
+      "cartFloatingBtn",
+    );
     checks.push(
-      "Interactive category chips, Cart Drawer modal, quantity stepper and Escape controls pass",
+      "Interactive category chips, Cart Drawer focus trap, quantity stepper and Escape controls pass",
     );
 
     await page.goto(`${base}/#halaman-4`);

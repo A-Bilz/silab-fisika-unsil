@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://forms.gle https://docs.google.com https://wa.me;"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://forms.gle https://docs.google.com;"
     />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
@@ -850,7 +850,8 @@
     <aside
       id="cartDrawer"
       class="cart-drawer"
-      role="region"
+      role="dialog"
+      aria-modal="true"
       aria-labelledby="cartDrawerTitle"
       hidden
     >

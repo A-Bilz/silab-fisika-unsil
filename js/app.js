@@ -654,17 +654,26 @@ function renderCartItems() {
     .join("");
 }
 
+let cartDrawerOpener = null;
+
 function openCartDrawer() {
+  cartDrawerOpener = document.activeElement;
   byId("cartBackdrop").hidden = false;
   byId("cartDrawer").hidden = false;
   byId("cartFloatingBtn")?.setAttribute("aria-expanded", "true");
   renderCartItems();
+  const closeBtn = byId("closeCartBtn");
+  if (closeBtn) closeBtn.focus();
 }
 
 function closeCartDrawer() {
   byId("cartBackdrop").hidden = true;
   byId("cartDrawer").hidden = true;
   byId("cartFloatingBtn")?.setAttribute("aria-expanded", "false");
+  if (cartDrawerOpener && typeof cartDrawerOpener.focus === "function") {
+    cartDrawerOpener.focus();
+    cartDrawerOpener = null;
+  }
 }
 
 let toastTimeout;
@@ -903,10 +912,28 @@ function init() {
   byId("copyCartBtn")?.addEventListener("click", copyCartToClipboard);
   byId("clearCartBtn")?.addEventListener("click", clearCart);
 
-  // Global keydown handler untuk Escape pada drawer
+  // Global keydown handler untuk Escape & Focus Trap pada cart drawer
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !byId("cartDrawer")?.hidden) {
+    const drawer = byId("cartDrawer");
+    if (!drawer || drawer.hidden) return;
+    if (event.key === "Escape") {
       closeCartDrawer();
+      return;
+    }
+    if (event.key === "Tab") {
+      const focusables = drawer.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   });
 
@@ -955,8 +982,8 @@ function init() {
   // ==========================================================================
   let deferredInstallPrompt = null;
   const isIOS =
-    /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) &&
-    !window.MSStream;
+    /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const isStandalone =
     window.matchMedia("(display-mode: standalone)").matches ||
     window.navigator.standalone === true;
@@ -1005,6 +1032,7 @@ function init() {
   // ==========================================================================
   // STATUS JAM OPERASIONAL LIVE (WIB / UTC+7)
   // ==========================================================================
+  let lastLabOpenState = null;
   function updateLabStatus() {
     const badge = byId("labLiveBadge");
     if (!badge) return;
@@ -1019,6 +1047,10 @@ function init() {
 
     const isWeekday = day >= 1 && day <= 5;
     const isOpen = isWeekday && mins >= openMins && mins < closeMins;
+
+    // Hanya perbarui DOM jika status berubah agar tidak memicu re-announce berulang pada pembaca layar
+    if (lastLabOpenState === isOpen) return;
+    lastLabOpenState = isOpen;
 
     if (isOpen) {
       badge.className = "lab-status-badge open";
@@ -1187,7 +1219,7 @@ function init() {
           scanRafId = requestAnimationFrame(scanFrameLoop);
         } else {
           if (scannerMsg) {
-            scannerMsg.textContent = isIos
+            scannerMsg.textContent = isIOS
               ? "Tips iPhone: Arahkan kamera bawaan iPhone ke stiker QR untuk membuka alat instan, atau gunakan unggah foto."
               : "Pendeteksi otomatis tidak aktif di peramban ini. Silakan unggah foto stiker.";
           }
@@ -1200,7 +1232,7 @@ function init() {
           err.name === "NotAllowedError" ||
           err.name === "PermissionDeniedError"
         ) {
-          scannerMsg.textContent = isIos
+          scannerMsg.textContent = isIOS
             ? "Izin kamera ditolak. Buka Pengaturan iPhone > Safari > Kamera, atau scan pakai kamera bawaan iPhone."
             : "Izin kamera ditolak. Izinkan akses kamera pada pengaturan peramban Anda.";
         } else {
