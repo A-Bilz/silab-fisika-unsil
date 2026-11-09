@@ -994,9 +994,12 @@ function init() {
   const scannerVideo = byId("scannerVideo");
   const scannerFileInput = byId("scannerFileInput");
   const scannerMsg = byId("scannerMessage");
+  const scannerViewport = byId("scannerViewport");
   let cameraStream = null;
   let isScanning = false;
   let barcodeDetector = null;
+  let scanRafId = 0;
+  let isCoolingDown = false;
 
   if (window.BarcodeDetector) {
     try {
@@ -1010,6 +1013,10 @@ function init() {
 
   function stopScannerCamera() {
     isScanning = false;
+    if (scanRafId) {
+      cancelAnimationFrame(scanRafId);
+      scanRafId = 0;
+    }
     if (cameraStream) {
       cameraStream.getTracks().forEach((track) => track.stop());
       cameraStream = null;
@@ -1018,18 +1025,18 @@ function init() {
       scannerVideo.pause();
       scannerVideo.srcObject = null;
     }
+    scannerViewport?.classList.remove("detected");
   }
 
   function handleDetectedCode(raw) {
-    if (!raw) return;
-    stopScannerCamera();
-    scannerModal?.close();
+    if (!raw || isCoolingDown) return;
+    isCoolingDown = true;
+    setTimeout(() => {
+      isCoolingDown = false;
+    }, 1200);
 
-    if (navigator.vibrate) {
-      try {
-        navigator.vibrate([40, 60, 40]);
-      } catch (e) {}
-    }
+    // Feedback visual cepat: laser hijau & stop scan
+    scannerViewport?.classList.add("detected");
 
     let code = String(raw).trim();
     if (code.includes("#alat=")) {
@@ -1037,6 +1044,8 @@ function init() {
     } else if (code.includes("alat=")) {
       code = code.split("alat=")[1].split("&")[0];
     }
+    // Sanitasi kode
+    code = code.replace(/[^\w-]/g, "");
 
     const matched = equipmentData.find(
       (item) =>
@@ -1044,19 +1053,40 @@ function init() {
         item.name.toLowerCase().includes(code.toLowerCase()),
     );
 
-    location.hash = "#halaman-5";
-    if (matched) {
-      openKartuAlat(matched.code);
-      showToast(`✓ Alat terdeteksi: ${matched.name} (${matched.code})`);
-    } else {
-      const searchBox = byId("searchEquipment");
-      if (searchBox) {
-        searchBox.value = code;
-        renderCatalog();
-        searchBox.focus();
-      }
-      showToast(`Kode terpindai: ${code}`);
+    if (navigator.vibrate) {
+      try {
+        if (matched) {
+          navigator.vibrate([60, 40, 60]); // Dua getar konfirmasi saat sukses
+        } else {
+          navigator.vibrate(180); // Satu getar peringatan saat kode tak terdaftar
+        }
+      } catch (e) {}
     }
+
+    if (scannerMsg) {
+      scannerMsg.textContent = matched
+        ? `✓ Terbaca: ${matched.name} (${matched.code})`
+        : `Kode "${code}" terbaca (belum ada di katalog lokal)`;
+    }
+
+    setTimeout(() => {
+      stopScannerCamera();
+      scannerModal?.close();
+
+      location.hash = "#halaman-5";
+      if (matched) {
+        openKartuAlat(matched.code);
+        showToast(`✓ Alat terdeteksi: ${matched.name} (${matched.code})`);
+      } else {
+        const searchBox = byId("searchEquipment");
+        if (searchBox) {
+          searchBox.value = code;
+          renderCatalog();
+          searchBox.focus();
+        }
+        showToast(`Kode terpindai: ${code}`);
+      }
+    }, 320);
   }
 
   async function scanFrameLoop() {
@@ -1071,13 +1101,21 @@ function init() {
       }
     } catch (e) {}
     if (isScanning) {
-      requestAnimationFrame(scanFrameLoop);
+      scanRafId = requestAnimationFrame(scanFrameLoop);
     }
   }
 
   async function openScannerModal() {
     if (!scannerModal) return;
+    if (cameraStream) stopScannerCamera(); // Guard cegah duplicate camera stream
+
     scannerModal.showModal();
+    if (navigator.vibrate) {
+      try {
+        navigator.vibrate(30);
+      } catch (e) {}
+    }
+
     if (scannerMsg) scannerMsg.textContent = "Mengaktifkan kamera perangkat…";
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -1098,11 +1136,11 @@ function init() {
         if (barcodeDetector) {
           if (scannerMsg)
             scannerMsg.textContent = "Arahkan kamera ke stiker kode alat…";
-          scanFrameLoop();
+          scanRafId = requestAnimationFrame(scanFrameLoop);
         } else {
           if (scannerMsg)
             scannerMsg.textContent =
-            "Pendeteksi otomatis tidak aktif. Silakan unggah foto kode jika diperlukan.";
+              "Pendeteksi otomatis tidak aktif. Silakan unggah foto kode jika diperlukan.";
         }
       }
     } catch (err) {
@@ -1123,6 +1161,7 @@ function init() {
     scannerModal?.close();
   });
   scannerModal?.addEventListener("close", stopScannerCamera);
+  window.addEventListener("pagehide", stopScannerCamera);
   scannerModal?.addEventListener("click", (event) => {
     if (event.target === scannerModal) {
       stopScannerCamera();

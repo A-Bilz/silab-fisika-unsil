@@ -1506,7 +1506,7 @@ body {
    LIVE LAB STATUS BADGE
    ========================================================================== */
 .lab-status-badge {
-  display: none;
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   padding: 0.25rem 0.65rem;
@@ -1517,9 +1517,16 @@ body {
   white-space: nowrap;
 }
 
-@media (min-width: 48rem) {
+@media (max-width: 47.99rem) {
   .lab-status-badge {
-    display: inline-flex;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border-width: 0;
   }
 }
 
@@ -1652,6 +1659,11 @@ body {
   color: var(--ink);
 }
 
+.scanner-header .close-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
 .scanner-body {
   padding: 1.25rem 1.5rem;
 }
@@ -1745,6 +1757,13 @@ body {
   100% {
     top: 95%;
   }
+}
+
+.scanner-viewport.detected .scanner-laser {
+  background: #10b981;
+  box-shadow: 0 0 12px #10b981, 0 0 24px #059669;
+  animation: none;
+  top: 50%;
 }
 
 .scanner-message {

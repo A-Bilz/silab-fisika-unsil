@@ -769,7 +769,7 @@
           <button id="closeScannerBtn" class="close-btn" aria-label="Tutup pemindai">×</button>
         </div>
         <div class="scanner-body">
-          <p class="scanner-hint">Arahkan kamera ke kode QR atau barcode pada stiker alat inventaris laboratorium.</p>
+          <p class="scanner-hint">Arahkan kamera ke stiker QR atau barcode pada alat fisik. Kode terdeteksi otomatis tanpa perlu menekan tombol apa pun.</p>
           <div id="scannerViewport" class="scanner-viewport">
             <video id="scannerVideo" playsinline autoplay muted></video>
             <div class="scanner-reticle" aria-hidden="true">
@@ -779,7 +779,7 @@
               <span class="reticle-corner br"></span>
               <div class="scanner-laser"></div>
             </div>
-            <p id="scannerMessage" class="scanner-message" role="status">Mengaktifkan kamera…</p>
+            <p id="scannerMessage" class="scanner-message" role="status" aria-live="polite">Mengaktifkan kamera…</p>
           </div>
           <div class="scanner-footer">
             <label for="scannerFileInput" class="btn outline btn-file-scan">
