@@ -1461,12 +1461,36 @@ body {
   line-height: 1.5;
 }
 
-.ios-icon {
+.ios-svg-icon {
+  width: 20px !important;
+  height: 20px !important;
   display: inline-block;
-  padding: 0 0.35rem;
-  font-size: 1.1rem;
-  vertical-align: middle;
-  color: var(--gold-dark);
+  vertical-align: -3px;
+  color: #0284c7;
+  margin: 0 0.25rem;
+  flex-shrink: 0;
+}
+
+.ios-install-dialog .close-btn {
+  all: unset;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(118, 118, 128, 0.12);
+  color: #8e8e93;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.ios-install-dialog .close-btn:hover {
+  background: rgba(118, 118, 128, 0.24);
+  color: var(--ink);
 }
 
 .ios-install-footer {
