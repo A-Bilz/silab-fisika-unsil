@@ -942,6 +942,7 @@ footer a {
   .toast-notification,
   .filter-chips,
   #iosInstallModal,
+  #scannerModal,
   #installAppBtn {
     display: none !important;
   }
@@ -1499,4 +1500,365 @@ body {
   background: var(--paper);
   display: flex;
   justify-content: flex-end;
+}
+
+/* ==========================================================================
+   LIVE LAB STATUS BADGE
+   ========================================================================== */
+.lab-status-badge {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (min-width: 48rem) {
+  .lab-status-badge {
+    display: inline-flex;
+  }
+}
+
+.lab-status-badge.open {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.lab-status-badge.closed {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.lab-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.lab-status-badge.open .lab-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.lab-status-badge.closed .lab-status-dot {
+  background: #ef4444;
+}
+
+/* ==========================================================================
+   SEARCH BARCODE SCANNER BUTTON & INPUT GROUP
+   ========================================================================== */
+.search-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.search-input-group input[type="search"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-scan {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-scan:hover {
+  background: #f1f5f9;
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+/* ==========================================================================
+   SCANNER MODAL DIALOG
+   ========================================================================== */
+.scanner-dialog {
+  border: none;
+  border-radius: 1rem;
+  padding: 0;
+  max-width: min(92vw, 30rem);
+  width: 100%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  background: #ffffff;
+}
+
+.scanner-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.scanner-dialog-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.scanner-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.scanner-header h2 {
+  font-size: 1.15rem;
+  margin: 0.2rem 0 0;
+}
+
+.scanner-header .eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: var(--teal);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.scanner-header .close-btn {
+  all: unset;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(118, 118, 128, 0.12);
+  color: #8e8e93;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.scanner-header .close-btn:hover {
+  background: rgba(118, 118, 128, 0.24);
+  color: var(--ink);
+}
+
+.scanner-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.scanner-hint {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--slate);
+  line-height: 1.4;
+}
+
+.scanner-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 220px;
+  background: #0f172a;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scanner-viewport video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-reticle {
+  position: absolute;
+  width: 65%;
+  height: 65%;
+  pointer-events: none;
+}
+
+.reticle-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 3px solid #38bdf8;
+}
+
+.reticle-corner.tl {
+  top: 0;
+  left: 0;
+  border-right: none;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+}
+
+.reticle-corner.tr {
+  top: 0;
+  right: 0;
+  border-left: none;
+  border-bottom: none;
+  border-top-right-radius: 4px;
+}
+
+.reticle-corner.bl {
+  bottom: 0;
+  left: 0;
+  border-right: none;
+  border-top: none;
+  border-bottom-left-radius: 4px;
+}
+
+.reticle-corner.br {
+  bottom: 0;
+  right: 0;
+  border-left: none;
+  border-top: none;
+  border-bottom-right-radius: 4px;
+}
+
+.scanner-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8, 0 0 20px #0284c7;
+  animation: scanLaser 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+
+@keyframes scanLaser {
+  0% {
+    top: 5%;
+  }
+  100% {
+    top: 95%;
+  }
+}
+
+.scanner-message {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  right: 0.75rem;
+  margin: 0;
+  padding: 0.35rem 0.65rem;
+  background: rgba(15, 23, 42, 0.85);
+  color: #e2e8f0;
+  border-radius: 0.35rem;
+  font-size: 0.8rem;
+  text-align: center;
+  backdrop-filter: blur(2px);
+}
+
+.scanner-footer {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-file-scan {
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ==========================================================================
+   OFFICIAL FORMS & SHEETS CARDS
+   ========================================================================== */
+.official-access-card,
+.official-sheets-card {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+}
+
+.official-access-card h3,
+.official-sheets-card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.official-hint {
+  margin: 0 0 1.25rem;
+  color: var(--slate);
+  font-size: 0.85rem;
+}
+
+.official-links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+}
+
+.form-official-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.official-sheets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.sheet-link-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.sheet-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  border-color: var(--teal);
+}
+
+.sheet-badge {
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  background: #ecfdf5;
+  color: #065f46;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-link-btn strong {
+  font-size: 0.95rem;
+}
+
+.sheet-link-btn small {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.3;
 }

@@ -310,6 +310,28 @@ const { createServer } = require("../scripts/serve.cjs");
     await page.locator("#closeIosInstallBtn").click();
     assert.equal(await page.locator("#iosInstallModal").isVisible(), false);
 
+    // Test Barcode/QR Scanner modal & trigger button
+    await page.goto(`${base}/#halaman-5`);
+    assert(await page.locator("#btnScanBarcode").isVisible());
+    await page.locator("#btnScanBarcode").click();
+    assert(await page.locator("#scannerModal").isVisible());
+    await page.locator("#closeScannerBtn").click();
+    assert.equal(await page.locator("#scannerModal").isVisible(), false);
+
+    // Test deep link #alat=FIS-OPT-001
+    await page.goto(`${base}/#alat=FIS-OPT-001`);
+    await page.waitForTimeout(100);
+    assert(await page.locator("#halaman-5").isVisible());
+    assert(await page.locator("#kartuAlatModal").isVisible());
+    await page.locator("#closeModal").click();
+    assert.equal(await page.locator("#kartuAlatModal").isVisible(), false);
+
+    // Test official links & sheets cards
+    await page.goto(`${base}/#halaman-4`);
+    assert(await page.locator(".official-access-card").isVisible());
+    await page.goto(`${base}/#halaman-6`);
+    assert(await page.locator(".official-sheets-card").isVisible());
+
     assert.deepEqual(errors, []);
     checks.push(
       "PWA webmanifest, service worker, touch/standalone meta tags, and iOS A2HS install dialog pass",

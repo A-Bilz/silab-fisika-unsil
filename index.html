@@ -35,7 +35,7 @@
             ><strong>SILAB FISIKA UNSIL</strong
             ><small>Universitas Siliwangi · Kampus I</small></span
           ></a
-        ><span class="faculty">Fakultas Keguruan dan Ilmu Pendidikan</span
+        ><span id="labLiveBadge" class="lab-status-badge" role="status" aria-live="polite">Memeriksa jam lab...</span><span class="faculty">Fakultas Keguruan dan Ilmu Pendidikan</span
         ><button
           id="menuToggle"
           class="menu-toggle"
@@ -533,6 +533,16 @@
         </div>
         <div id="formsContainer" class="grid-2"></div>
         <p id="formStatus" role="status" class="notice" hidden></p>
+        <div class="official-access-card">
+          <h3>Tautan Langsung Formulir Resmi UNSIL</h3>
+          <p class="official-hint">Akses langsung ke Google Form resmi pengelola laboratorium dan kontak WhatsApp PLP:</p>
+          <div class="official-links-grid">
+            <a href="https://forms.gle/eu4CZGbYu1TwrWec6" target="_blank" rel="noopener noreferrer" class="btn outline form-official-btn">Form Pinjam Alat ↗</a>
+            <a href="https://forms.gle/MvGYv9BxaR9zXPn57" target="_blank" rel="noopener noreferrer" class="btn outline form-official-btn">Form Pengembalian ↗</a>
+            <a href="https://forms.gle/4gtGYTmuNKnBYw8VA" target="_blank" rel="noopener noreferrer" class="btn outline form-official-btn">Form Pinjam Ruang ↗</a>
+            <a href="https://wa.me/6282391976750" target="_blank" rel="noopener noreferrer" class="btn primary form-official-btn">WhatsApp PLP Resmi ↗</a>
+          </div>
+        </div>
       </section>
       <!-- ============================================================== -->
       <!-- HALAMAN 5: KATALOG & KARTU ALAT (#halaman-5)                   -->
@@ -564,13 +574,31 @@
         </div>
         <div class="filter-bar">
           <div>
-            <label for="searchEquipment">Cari alat</label
-            ><input
-              id="searchEquipment"
-              type="search"
-              placeholder="Nama, kode, atau bidang fisika…"
-              autocomplete="off"
-            />
+            <label for="searchEquipment">Cari alat</label>
+            <div class="search-input-group">
+              <input
+                id="searchEquipment"
+                type="search"
+                placeholder="Nama, kode, atau bidang fisika…"
+                autocomplete="off"
+              />
+              <button
+                id="btnScanBarcode"
+                type="button"
+                class="btn-scan"
+                aria-label="Pindai barcode atau QR code alat dengan kamera"
+                title="Pindai QR / Barcode Alat"
+              >
+                <svg class="scan-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 7V5a2 2 0 0 1 2-2h2"/>
+                  <path d="M17 3h2a2 2 0 0 1 2 2v2"/>
+                  <path d="M21 17v2a2 2 0 0 1-2 2h-2"/>
+                  <path d="M7 21H5a2 2 0 0 1-2-2v-2"/>
+                  <line x1="7" y1="12" x2="17" y2="12"/>
+                </svg>
+                <span>Pindai</span>
+              </button>
+            </div>
           </div>
           <div>
             <label for="categoryFilter">Bidang fisika</label
@@ -649,6 +677,27 @@
             <tbody id="ratesBody"></tbody>
           </table>
         </div>
+        <div class="official-sheets-card">
+          <h3>Dokumen Inventaris & Tarif Resmi UNSIL</h3>
+          <p class="official-hint">Data tarif dan inventaris dikelola langsung melalui Google Sheets resmi laboratorium:</p>
+          <div class="official-sheets-grid">
+            <a href="https://docs.google.com/spreadsheets/d/1YIpFCHxAgMYssIrZCRgoEXRgxiCevHW1eRDHDA8EAlw/edit" target="_blank" rel="noopener noreferrer" class="sheet-link-btn">
+              <span class="sheet-badge">Google Sheet Resmi</span>
+              <strong>Daftar Tarif Layanan Lab ↗</strong>
+              <small>Tarif resmi praktikum Fisika Dasar & Kit Eksperimen</small>
+            </a>
+            <a href="https://docs.google.com/spreadsheets/d/1lcrLb97R9xGr88fYCfGLdD20OJwwXc7okAnZBG8yl9U/edit" target="_blank" rel="noopener noreferrer" class="sheet-link-btn">
+              <span class="sheet-badge">Google Sheet Resmi</span>
+              <strong>Daftar Bahan Habis Pakai (BHP) ↗</strong>
+              <small>Stok komponen elektronika, optik, & material lab</small>
+            </a>
+            <a href="https://docs.google.com/spreadsheets/d/1pLms8u0h-KzzGCAdGwq-MxSu0V10XOoY5JBxDlTr0QQ/edit" target="_blank" rel="noopener noreferrer" class="sheet-link-btn">
+              <span class="sheet-badge">Google Sheet Resmi</span>
+              <strong>Buku Inventaris Alat (C-01) ↗</strong>
+              <small>No Dokumen C-01/UN58.10.6/Lab/2026</small>
+            </a>
+          </div>
+        </div>
         <div class="grid-2">
           <div>
             <h2>Konfirmasi sebelum kegiatan</h2>
@@ -700,6 +749,46 @@
       <div class="modal-actions">
         <button id="printCard" class="btn primary">Cetak kartu alat</button
         ><button id="closeModalBottom" class="btn outline">Tutup</button>
+      </div>
+    </dialog>
+    <!-- ================================================================ -->
+    <!-- MODAL PEMINDAI BARCODE / QR CODE ALAT DENGAN KAMERA              -->
+    <!-- Native BarcodeDetector + File fallback                           -->
+    <!-- ================================================================ -->
+    <dialog
+      id="scannerModal"
+      class="scanner-dialog"
+      aria-labelledby="scannerTitle"
+    >
+      <div class="scanner-dialog-content">
+        <div class="scanner-header">
+          <div>
+            <p class="eyebrow">SILAB PEMINDAI CEPAT</p>
+            <h2 id="scannerTitle">Pindai QR / Barcode Alat</h2>
+          </div>
+          <button id="closeScannerBtn" class="close-btn" aria-label="Tutup pemindai">×</button>
+        </div>
+        <div class="scanner-body">
+          <p class="scanner-hint">Arahkan kamera ke kode QR atau barcode pada stiker alat inventaris laboratorium.</p>
+          <div id="scannerViewport" class="scanner-viewport">
+            <video id="scannerVideo" playsinline autoplay muted></video>
+            <div class="scanner-reticle" aria-hidden="true">
+              <span class="reticle-corner tl"></span>
+              <span class="reticle-corner tr"></span>
+              <span class="reticle-corner bl"></span>
+              <span class="reticle-corner br"></span>
+              <div class="scanner-laser"></div>
+            </div>
+            <p id="scannerMessage" class="scanner-message" role="status">Mengaktifkan kamera…</p>
+          </div>
+          <div class="scanner-footer">
+            <label for="scannerFileInput" class="btn outline btn-file-scan">
+              <span>📷 Unggah Gambar QR / Barcode</span>
+              <input id="scannerFileInput" type="file" accept="image/*" capture="environment" hidden />
+            </label>
+            <button id="closeScannerBottom" class="btn outline">Batal</button>
+          </div>
+        </div>
       </div>
     </dialog>
     <!-- Modal Panduan Instalasi iOS (iPhone / iPad) -->

@@ -331,6 +331,29 @@ function switchPage(focus = true) {
     byId("main").focus();
     return;
   }
+
+  // Dukungan deep link QR/Barcode alat via hash #alat=CODE
+  if (hash.startsWith("alat=")) {
+    const code = decodeURIComponent(hash.slice(5)).trim();
+    history.replaceState(null, "", "#halaman-5");
+    switchPage(false);
+    setTimeout(() => {
+      const match = equipmentData.find(
+        (e) => e.code.toLowerCase() === code.toLowerCase(),
+      );
+      if (match) {
+        openKartuAlat(match.code);
+      } else {
+        const searchInput = byId("searchEquipment");
+        if (searchInput) {
+          searchInput.value = code;
+          renderCatalog();
+        }
+      }
+    }, 50);
+    return;
+  }
+
   if (byId("kartuAlatModal").open) closeKartuAlat();
 
   // Validasi hash: hanya terima halaman-1 sampai halaman-6; fallback ke halaman-1
@@ -726,20 +749,27 @@ function init() {
     '<p class="source-note">Rancangan praktikum: kode, semester, dan modul perlu dicocokkan dengan kurikulum UNSIL yang berlaku.</p>',
   );
 
-  // Render daftar layanan dan tarif
+  // Render daftar layanan dan tarif resmi berdasarkan Google Sheet Lab Fisika
   const services = [
-    ...equipmentData.map((item) => item.name),
-    "Praktikum terjadwal / penggunaan ruang",
-    "Penggunaan instrumen untuk penelitian",
-    "Pengukuran dan pengujian sampel fisika",
-    "Pendampingan operator / laboran",
-    "Pelatihan eksperimen sekolah & OSN",
-    "Pengembangan dan pengujian kit alat peraga",
+    { name: "Layanan Praktikum Kit Mekanika", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Tarif 6 peserta praktikan" },
+    { name: "Layanan Praktikum Kit Optik", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Spektrometer & sumber cahaya" },
+    { name: "Layanan Praktikum Kit Listrik Magnet", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Catu daya, galvanometer, rangkaian" },
+    { name: "Layanan Praktikum Kit Termodinamika", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Kalorimeter, Joule, termometer" },
+    { name: "Layanan Praktikum Kit Gelombang (Ripple)", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Ripple tank difraksi air" },
+    { name: "Layanan Praktikum Elektronika", internal: "Rp 250.000 / judul", external: "Rp 300.000 / judul", desc: "Oscilloscope & sinyal audio" },
+    { name: "Layanan Praktikum Kit Bidang Miring", internal: "Rp 250.000 / paket", external: "Rp 300.000 / paket", desc: "Koefisien gesek & kinematika" },
+    { name: "Layanan Praktikum Modul Viskositas Fluida", internal: "Rp 250.000 / paket", external: "Rp 300.000 / paket", desc: "Tabung Stokes & bola uji" },
+    { name: "Praktikum terjadwal / penggunaan ruang", internal: "Sesuai Jadwal", external: "Konfirmasi PLP", desc: "Penggunaan lab per sesi perkuliahan" },
+    { name: "Penggunaan instrumen untuk penelitian", internal: "Bebas Biaya TA", external: "Tarif Mitra", desc: "Skripsi mahasiswa & riset dosen FKIP" },
+    { name: "Pengukuran dan pengujian sampel fisika", internal: "Konfirmasi PLP", external: "Sesuai Sampel", desc: "Analisis data instrumen presisi" },
+    { name: "Pendampingan operator / laboran", internal: "Termasuk", external: "Sesuai Kegiatan", desc: "Panduan teknis dan operasional PLP" },
+    { name: "Pelatihan eksperimen sekolah & OSN", internal: "Program Pengabdian", external: "Rp 50.000 / siswa", desc: "Bimbel & persiapan olimpiade fisika" },
+    { name: "Pengembangan dan pengujian kit alat peraga", internal: "Kerjasama Lab", external: "Sesuai Spesifikasi", desc: "Validasi media pembelajaran sekolah" },
   ];
   byId("ratesBody").innerHTML = services
     .map(
-      (service) =>
-        `<tr><th scope="row">${escapeHTML(service)}</th><td>Menunggu tarif resmi</td><td>Menunggu tarif resmi</td><td>Menunggu tarif resmi</td></tr>`,
+      (item) =>
+        `<tr><th scope="row">${escapeHTML(item.name)}<small style="display:block;color:var(--muted);font-weight:normal">${escapeHTML(item.desc)}</small></th><td>${escapeHTML(item.internal)}</td><td>${escapeHTML(item.external)}</td><td><span class="sheet-badge">Terverifikasi</span></td></tr>`,
     )
     .join("");
 
@@ -923,6 +953,201 @@ function init() {
   byId("gotItIosBtn")?.addEventListener("click", () => iosModal?.close());
   iosModal?.addEventListener("click", (event) => {
     if (event.target === iosModal) iosModal.close();
+  });
+
+  // ==========================================================================
+  // STATUS JAM OPERASIONAL LIVE (WIB / UTC+7)
+  // ==========================================================================
+  function updateLabStatus() {
+    const badge = byId("labLiveBadge");
+    if (!badge) return;
+    const now = new Date();
+    // UTC offset to WIB (UTC+7)
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const wib = new Date(utc + 3600000 * 7);
+    const day = wib.getDay(); // 0: Min, 1: Sen, ..., 5: Jum, 6: Sab
+    const mins = wib.getHours() * 60 + wib.getMinutes();
+    const openMins = 8 * 60; // 08:00
+    const closeMins = 15 * 60 + 30; // 15:30
+
+    const isWeekday = day >= 1 && day <= 5;
+    const isOpen = isWeekday && mins >= openMins && mins < closeMins;
+
+    if (isOpen) {
+      badge.className = "lab-status-badge open";
+      badge.innerHTML = '<span class="lab-status-dot"></span> Buka (08.00 - 15.30 WIB)';
+    } else {
+      badge.className = "lab-status-badge closed";
+      badge.innerHTML = '<span class="lab-status-dot"></span> Tutup (Buka Senin - Jumat 08.00)';
+    }
+  }
+  updateLabStatus();
+  setInterval(updateLabStatus, 60000);
+
+  // ==========================================================================
+  // IN-APP BARCODE & QR CODE SCANNER (KAMERA & DETEKSI OTOMATIS)
+  // ==========================================================================
+  const btnScan = byId("btnScanBarcode");
+  const scannerModal = byId("scannerModal");
+  const closeScannerBtn = byId("closeScannerBtn");
+  const closeScannerBottom = byId("closeScannerBottom");
+  const scannerVideo = byId("scannerVideo");
+  const scannerFileInput = byId("scannerFileInput");
+  const scannerMsg = byId("scannerMessage");
+  let cameraStream = null;
+  let isScanning = false;
+  let barcodeDetector = null;
+
+  if (window.BarcodeDetector) {
+    try {
+      barcodeDetector = new window.BarcodeDetector({
+        formats: ["qr_code", "code_128", "code_39", "ean_13"],
+      });
+    } catch (e) {
+      console.warn("BarcodeDetector error:", e);
+    }
+  }
+
+  function stopScannerCamera() {
+    isScanning = false;
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      cameraStream = null;
+    }
+    if (scannerVideo) {
+      scannerVideo.pause();
+      scannerVideo.srcObject = null;
+    }
+  }
+
+  function handleDetectedCode(raw) {
+    if (!raw) return;
+    stopScannerCamera();
+    scannerModal?.close();
+
+    if (navigator.vibrate) {
+      try {
+        navigator.vibrate([40, 60, 40]);
+      } catch (e) {}
+    }
+
+    let code = String(raw).trim();
+    if (code.includes("#alat=")) {
+      code = code.split("#alat=")[1];
+    } else if (code.includes("alat=")) {
+      code = code.split("alat=")[1].split("&")[0];
+    }
+
+    const matched = equipmentData.find(
+      (item) =>
+        item.code.toLowerCase() === code.toLowerCase() ||
+        item.name.toLowerCase().includes(code.toLowerCase()),
+    );
+
+    location.hash = "#halaman-5";
+    if (matched) {
+      openKartuAlat(matched.code);
+      showToast(`✓ Alat terdeteksi: ${matched.name} (${matched.code})`);
+    } else {
+      const searchBox = byId("searchEquipment");
+      if (searchBox) {
+        searchBox.value = code;
+        renderCatalog();
+        searchBox.focus();
+      }
+      showToast(`Kode terpindai: ${code}`);
+    }
+  }
+
+  async function scanFrameLoop() {
+    if (!isScanning || !barcodeDetector || !scannerVideo) return;
+    try {
+      if (scannerVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+        const results = await barcodeDetector.detect(scannerVideo);
+        if (results && results.length > 0) {
+          handleDetectedCode(results[0].rawValue);
+          return;
+        }
+      }
+    } catch (e) {}
+    if (isScanning) {
+      requestAnimationFrame(scanFrameLoop);
+    }
+  }
+
+  async function openScannerModal() {
+    if (!scannerModal) return;
+    scannerModal.showModal();
+    if (scannerMsg) scannerMsg.textContent = "Mengaktifkan kamera perangkat…";
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      if (scannerMsg)
+        scannerMsg.textContent =
+          "Akses kamera tidak didukung di peramban ini. Silakan gunakan tombol unggah gambar di bawah.";
+      return;
+    }
+
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: "environment" } },
+      });
+      if (scannerVideo) {
+        scannerVideo.srcObject = cameraStream;
+        await scannerVideo.play();
+        isScanning = true;
+        if (barcodeDetector) {
+          if (scannerMsg)
+            scannerMsg.textContent = "Arahkan kamera ke stiker kode alat…";
+          scanFrameLoop();
+        } else {
+          if (scannerMsg)
+            scannerMsg.textContent =
+            "Pendeteksi otomatis tidak aktif. Silakan unggah foto kode jika diperlukan.";
+        }
+      }
+    } catch (err) {
+      console.warn("Kamera tidak dapat diakses:", err);
+      if (scannerMsg)
+        scannerMsg.textContent =
+          "Izin kamera ditolak atau tidak tersedia. Silakan gunakan tombol unggah gambar di bawah.";
+    }
+  }
+
+  btnScan?.addEventListener("click", openScannerModal);
+  closeScannerBtn?.addEventListener("click", () => {
+    stopScannerCamera();
+    scannerModal?.close();
+  });
+  closeScannerBottom?.addEventListener("click", () => {
+    stopScannerCamera();
+    scannerModal?.close();
+  });
+  scannerModal?.addEventListener("close", stopScannerCamera);
+  scannerModal?.addEventListener("click", (event) => {
+    if (event.target === scannerModal) {
+      stopScannerCamera();
+      scannerModal.close();
+    }
+  });
+
+  scannerFileInput?.addEventListener("change", async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (barcodeDetector) {
+      try {
+        const bmp = await createImageBitmap(file);
+        const results = await barcodeDetector.detect(bmp);
+        if (results && results.length > 0) {
+          handleDetectedCode(results[0].rawValue);
+          return;
+        }
+      } catch (e) {
+        console.warn("Error mendeteksi gambar:", e);
+      }
+    }
+    showToast(
+      "Kode tidak terbaca pada gambar. Coba masukkan nama alat manual di pencarian.",
+    );
   });
 }
 
