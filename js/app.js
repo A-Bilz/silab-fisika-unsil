@@ -1128,6 +1128,7 @@ function init() {
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } },
+        audio: false,
       });
       if (scannerVideo) {
         scannerVideo.srcObject = cameraStream;
@@ -1138,16 +1139,28 @@ function init() {
             scannerMsg.textContent = "Arahkan kamera ke stiker kode alat…";
           scanRafId = requestAnimationFrame(scanFrameLoop);
         } else {
-          if (scannerMsg)
-            scannerMsg.textContent =
-              "Pendeteksi otomatis tidak aktif. Silakan unggah foto kode jika diperlukan.";
+          if (scannerMsg) {
+            scannerMsg.textContent = isIos
+              ? "Tips iPhone: Arahkan kamera bawaan iPhone ke stiker QR untuk membuka alat instan, atau gunakan unggah foto."
+              : "Pendeteksi otomatis tidak aktif di peramban ini. Silakan unggah foto stiker.";
+          }
         }
       }
     } catch (err) {
       console.warn("Kamera tidak dapat diakses:", err);
-      if (scannerMsg)
-        scannerMsg.textContent =
-          "Izin kamera ditolak atau tidak tersedia. Silakan gunakan tombol unggah gambar di bawah.";
+      if (scannerMsg) {
+        if (
+          err.name === "NotAllowedError" ||
+          err.name === "PermissionDeniedError"
+        ) {
+          scannerMsg.textContent = isIos
+            ? "Izin kamera ditolak. Buka Pengaturan iPhone > Safari > Kamera, atau scan pakai kamera bawaan iPhone."
+            : "Izin kamera ditolak. Izinkan akses kamera pada pengaturan peramban Anda.";
+        } else {
+          scannerMsg.textContent =
+            "Kamera tidak dapat dibuka. Silakan gunakan tombol unggah foto di bawah.";
+        }
+      }
     }
   }
 
