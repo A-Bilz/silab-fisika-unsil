@@ -2,12 +2,24 @@
 <html lang="id">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
     <meta
       name="description"
       content="SILAB FISIKA UNSIL: praktikum, keselamatan, peminjaman, dan katalog Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi, Kampus I Tasikmalaya."
     />
     <meta name="theme-color" content="#0f172a" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="SILAB UNSIL" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <title>SILAB FISIKA UNSIL | Laboratorium Pendidikan Fisika</title>
     <link rel="stylesheet" href="css/style.css" />
     <script src="js/config.js" defer></script>
@@ -40,6 +52,14 @@
         ><a href="#halaman-4" class="nav-btn">Administrasi & Peminjaman</a
         ><a href="#halaman-5" class="nav-btn">Katalog & Kartu Alat</a
         ><a href="#halaman-6" class="nav-btn">Tarif Layanan</a>
+        <button
+          id="installAppBtn"
+          class="nav-btn btn-install"
+          aria-label="Pasang Aplikasi SILAB ke Layar Utama Ponsel"
+          hidden
+        >
+          📲 Pasang Aplikasi
+        </button>
       </nav>
     </header>
     <main id="main" class="wrap" tabindex="-1">
@@ -680,6 +700,52 @@
       <div class="modal-actions">
         <button id="printCard" class="btn primary">Cetak kartu alat</button
         ><button id="closeModalBottom" class="btn outline">Tutup</button>
+      </div>
+    </dialog>
+    <!-- Modal Panduan Instalasi iOS (iPhone / iPad) -->
+    <dialog
+      id="iosInstallModal"
+      class="ios-install-dialog"
+      aria-labelledby="iosInstallTitle"
+    >
+      <div class="ios-install-content">
+        <div class="ios-install-header">
+          <h2 id="iosInstallTitle">Pasang SILAB di iPhone / iPad</h2>
+          <button
+            id="closeIosInstallBtn"
+            class="close-btn"
+            aria-label="Tutup panduan instalasi"
+          >
+            ×
+          </button>
+        </div>
+        <div class="ios-install-body">
+          <p>
+            Gunakan SILAB seperti aplikasi native di iPhone Anda tanpa perlu App
+            Store:
+          </p>
+          <ol class="ios-steps">
+            <li>
+              Ketuk tombol <strong>Bagikan (Share)</strong>
+              <span class="ios-icon" aria-hidden="true">⎋</span> pada bilah
+              bawah peramban Safari.
+            </li>
+            <li>
+              Gulir menu ke bawah lalu pilih
+              <strong>Tambah ke Layar Utama (Add to Home Screen)</strong>
+              <span class="ios-icon" aria-hidden="true">⊞</span>.
+            </li>
+            <li>
+              Ketuk <strong>Tambah (Add)</strong> di pojok kanan atas. Ikon SILAB
+              akan langsung muncul di layar utama iPhone Anda!
+            </li>
+          </ol>
+        </div>
+        <div class="ios-install-footer">
+          <button id="gotItIosBtn" class="btn primary">
+            Mengerti, siap pasang
+          </button>
+        </div>
       </div>
     </dialog>
     <!-- ================================================================ -->

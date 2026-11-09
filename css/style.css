@@ -940,7 +940,9 @@ footer a {
   .cart-floating-btn,
   .cart-backdrop,
   .toast-notification,
-  .filter-chips {
+  .filter-chips,
+  #iosInstallModal,
+  #installAppBtn {
     display: none !important;
   }
 }
@@ -1357,4 +1359,120 @@ h3 {
     opacity: 1;
     transform: translate(-50%, 0);
   }
+}
+
+/* ==========================================================================
+   PWA & NATIVE APP EXPERIENCE (TOUCH OPTIMIZATION & INSTALL MODAL)
+   ========================================================================== */
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-y: contain;
+}
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.cart-floating-btn {
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  right: calc(1.25rem + env(safe-area-inset-right));
+}
+
+@media (max-width: 48rem) {
+  .cart-drawer {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+.btn-install {
+  background: var(--ink);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  font-weight: 600;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-install:hover {
+  background: var(--gold);
+  color: var(--ink);
+}
+
+/* iOS Install Dialog */
+.ios-install-dialog {
+  border: none;
+  border-radius: 1rem;
+  padding: 0;
+  max-width: min(90vw, 28rem);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  background: white;
+}
+
+.ios-install-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.ios-install-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.ios-install-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+}
+
+.ios-install-header h2 {
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.ios-install-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.ios-install-body p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: var(--slate);
+}
+
+.ios-steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.ios-icon {
+  display: inline-block;
+  padding: 0 0.35rem;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  color: var(--gold-dark);
+}
+
+.ios-install-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  background: var(--paper);
+  display: flex;
+  justify-content: flex-end;
 }

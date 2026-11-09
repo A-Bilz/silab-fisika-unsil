@@ -96,11 +96,11 @@ const { createServer } = require("../scripts/serve.cjs");
       .evaluateAll((buttons) => buttons.map((b) => b.dataset.equipment));
     for (const code of codes) {
       await page.locator(`[data-equipment="${code}"]`).click();
-      assert(await page.locator("dialog").isVisible());
-      assert.equal(await page.locator("dialog .sop li").count(), 4);
+      assert(await page.locator("#kartuAlatModal").isVisible());
+      assert.equal(await page.locator("#kartuAlatModal .sop li").count(), 4);
       assert(
         await page.evaluate(() => {
-          const d = document.querySelector("dialog");
+          const d = document.querySelector("#kartuAlatModal");
           return d.scrollWidth <= d.clientWidth;
         }),
         `Dialog overflow ${code}`,
@@ -118,7 +118,9 @@ const { createServer } = require("../scripts/serve.cjs");
     await page.keyboard.press("Shift+Tab");
     assert(
       await page.evaluate(() =>
-        document.querySelector("dialog").contains(document.activeElement),
+        document
+          .querySelector("#kartuAlatModal")
+          .contains(document.activeElement),
       ),
       "Focus trap",
     );
@@ -142,7 +144,7 @@ const { createServer } = require("../scripts/serve.cjs");
     assert(await page.evaluate(() => window.printCalled));
     await page.emulateMedia({ media: "print" });
     assert.equal(await page.locator("main").isVisible(), false);
-    assert(await page.locator("dialog").isVisible());
+    assert(await page.locator("#kartuAlatModal").isVisible());
     await page.pdf({
       path: "test-results/equipment-card.pdf",
       format: "A4",
@@ -285,7 +287,33 @@ const { createServer } = require("../scripts/serve.cjs");
       ),
       "Text resize overflow",
     );
+
+    // Verifikasi Kapabilitas PWA (Manifest, SW, Meta, & iOS Modal)
+    const manifestLink = await page
+      .locator('link[rel="manifest"]')
+      .getAttribute("href");
+    assert.equal(manifestLink, "manifest.webmanifest");
+    const manifestRaw = fs.readFileSync("manifest.webmanifest", "utf8");
+    const manifestJson = JSON.parse(manifestRaw);
+    assert.equal(manifestJson.display, "standalone");
+    assert(manifestJson.icons.length >= 2);
+    assert(fs.existsSync("sw.js"), "sw.js exists");
+    assert(fs.existsSync("icons/icon-192.png"), "icon-192 exists");
+    assert(fs.existsSync("icons/icon-512.png"), "icon-512 exists");
+    assert(fs.existsSync("icons/apple-touch-icon.png"), "apple-touch-icon exists");
+
+    // Test iOS modal open & close
+    await page.evaluate(() => {
+      document.getElementById("iosInstallModal").showModal();
+    });
+    assert(await page.locator("#iosInstallModal").isVisible());
+    await page.locator("#closeIosInstallBtn").click();
+    assert.equal(await page.locator("#iosInstallModal").isVisible(), false);
+
     assert.deepEqual(errors, []);
+    checks.push(
+      "PWA webmanifest, service worker, touch/standalone meta tags, and iOS A2HS install dialog pass",
+    );
     checks.push(
       "Deep links, browser back, invalid hash fallback, mobile menu Escape, 200% text resize and zero console/page errors pass",
     );

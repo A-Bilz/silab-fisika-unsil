@@ -872,6 +872,67 @@ function init() {
       `Tautan resmi ${escapeHTML(title)} belum tersedia. <a href="mailto:fisikafkip@unsil.ac.id?subject=${encodeURIComponent(`Permintaan tautan ${title}`)}">Minta tautan kepada pengelola melalui fisikafkip@unsil.ac.id</a>.`;
     byId("formStatus").scrollIntoView({ block: "nearest" });
   });
+
+  // ==========================================================================
+  // PWA & INSTALASI APLIKASI HOME SCREEN (ANDROID & IOS)
+  // ==========================================================================
+  let deferredInstallPrompt = null;
+  const isIOS =
+    /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase()) &&
+    !window.MSStream;
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  const installBtn = byId("installAppBtn");
+  const iosModal = byId("iosInstallModal");
+
+  if (!isStandalone) {
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      if (installBtn) installBtn.hidden = false;
+    });
+
+    if (isIOS && installBtn) {
+      installBtn.hidden = false;
+    }
+  }
+
+  if (installBtn) {
+    installBtn.addEventListener("click", () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        deferredInstallPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === "accepted") {
+            installBtn.hidden = true;
+          }
+          deferredInstallPrompt = null;
+        });
+      } else if (isIOS && iosModal) {
+        iosModal.showModal();
+      } else {
+        showToast("Buka menu browser Anda lalu pilih 'Tambahkan ke Layar Utama'");
+      }
+    });
+  }
+
+  byId("closeIosInstallBtn")?.addEventListener("click", () =>
+    iosModal?.close(),
+  );
+  byId("gotItIosBtn")?.addEventListener("click", () => iosModal?.close());
+  iosModal?.addEventListener("click", (event) => {
+    if (event.target === iosModal) iosModal.close();
+  });
+}
+
+// Registrasi Service Worker untuk kapabilitas offline & PWA instan
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch((err) => {
+      console.warn("Registrasi Service Worker gagal:", err);
+    });
+  });
 }
 
 // Inisialisasi aplikasi dengan blok penanganan kesalahan
