@@ -1,5 +1,14 @@
 "use strict";
 
+// Pertahanan Frame-Busting / Anti-Clickjacking
+if (window.top !== window.self) {
+  try {
+    window.top.location = window.self.location;
+  } catch {
+    document.documentElement.style.display = "none";
+  }
+}
+
 /**
  * ============================================================================
  * SILAB FISIKA UNSIL - APLIKASI WEB LABORATORIUM STATIS
@@ -334,7 +343,18 @@ function switchPage(focus = true) {
 
   // Dukungan deep link QR/Barcode alat via hash #alat=CODE
   if (hash.startsWith("alat=")) {
-    const code = decodeURIComponent(hash.slice(5)).trim();
+    let rawCode = hash.slice(5);
+    let code = "";
+    try {
+      code = decodeURIComponent(rawCode).trim();
+    } catch {
+      code = rawCode.trim();
+    }
+    // Sanitasi ketat: hanya izinkan karakter alfanumerik dan tanda hubung (maksimal 32 karakter)
+    code = code.replace(/[^\w-]/g, "").slice(0, 32);
+    if (code === "__proto__" || code === "constructor" || code === "prototype") {
+      code = "";
+    }
     history.replaceState(null, "", "#halaman-5");
     switchPage(false);
     setTimeout(() => {
@@ -345,7 +365,7 @@ function switchPage(focus = true) {
         openKartuAlat(match.code);
       } else {
         const searchInput = byId("searchEquipment");
-        if (searchInput) {
+        if (searchInput && code) {
           searchInput.value = code;
           renderCatalog();
         }
@@ -529,13 +549,28 @@ function renderGallery() {
    11. SISTEM KERANJANG PINJAM ALAT (PINJAM BASKET & ZERO-FRICTION HANDOVER)
    ============================================================================ */
 
-let cart = [];
-try {
-  const saved = localStorage.getItem("silab_cart");
-  if (saved) cart = JSON.parse(saved);
-} catch {
-  cart = [];
+function loadCart() {
+  try {
+    const saved = localStorage.getItem("silab_cart");
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((item) => {
+        if (!item || typeof item !== "object") return null;
+        if (typeof item.code !== "string") return null;
+        const validItem = equipmentData.find((eq) => eq.code === item.code);
+        if (!validItem) return null;
+        const qty = Math.min(20, Math.max(1, parseInt(item.qty, 10) || 1));
+        return { code: validItem.code, name: validItem.name, qty };
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
 }
+
+let cart = loadCart();
 
 function saveCart() {
   try {
@@ -556,11 +591,12 @@ function updateCartUI() {
 }
 
 function addToCart(code) {
+  if (typeof code !== "string") return;
   const item = equipmentData.find((eq) => eq.code === code);
   if (!item) return;
   const existing = cart.find((c) => c.code === code);
   if (existing) {
-    existing.qty += 1;
+    existing.qty = Math.min(20, existing.qty + 1);
   } else {
     cart.push({ code: item.code, name: item.name, qty: 1 });
   }
@@ -569,9 +605,10 @@ function addToCart(code) {
 }
 
 function updateCartQty(code, delta) {
+  if (typeof code !== "string") return;
   const existing = cart.find((c) => c.code === code);
   if (!existing) return;
-  existing.qty += delta;
+  existing.qty = Math.min(20, existing.qty + delta);
   if (existing.qty <= 0) {
     cart = cart.filter((c) => c.code !== code);
   }
@@ -643,9 +680,15 @@ function showToast(message) {
 }
 
 function composeCartText() {
-  const studentName =
+  const rawStudentName =
     byId("cartStudentName")?.value.trim() || "Mahasiswa Praktikan";
-  const notes = byId("cartStudentNotes")?.value.trim() || "-";
+  const rawNotes = byId("cartStudentNotes")?.value.trim() || "-";
+  // Sanitasi karakter kontrol & pembatasan panjang
+  const studentName = rawStudentName
+    .replace(/[\u0000-\u001F\u007F]/g, "")
+    .slice(0, 100);
+  const notes = rawNotes.replace(/[\u0000-\u001F\u007F]/g, "").slice(0, 200);
+
   const lines = [
     "Halo Bapak/Ibu PLP Laboratorium Pendidikan Fisika UNSIL,",
     "",
@@ -680,7 +723,11 @@ function sendCartToWhatsApp() {
     return;
   }
   const text = composeCartText();
-  const waUrl = `https://wa.me/6282391976750?text=${encodeURIComponent(text)}`;
+  const baseWa =
+    (typeof config !== "undefined" && config.officialLinks?.waPeminjaman) ||
+    "https://wa.me/6282391976750";
+  const separator = baseWa.includes("?") ? "&" : "?";
+  const waUrl = `${baseWa}${separator}text=${encodeURIComponent(text)}`;
   window.open(waUrl, "_blank", "noopener,noreferrer");
 }
 

@@ -2,7 +2,7 @@
  * Service Worker SILAB Fisika UNSIL (Cache-first offline app shell)
  */
 
-const CACHE_NAME = "silab-unsil-v1";
+const CACHE_NAME = "silab-unsil-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -38,13 +38,16 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Only handle GET requests for same origin or relative paths
+  // Hanya layani permintaan GET
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
 
-  // Ignore chrome extensions or external cross-origin analytics/APIs
+  // Abaikan permintaan lintas-origin atau protokol non-http (ekstensi peramban)
   if (url.origin !== self.location.origin) return;
+
+  // Jangan cache API dinamis atau parameter bypass
+  if (url.pathname.startsWith("/api/") || url.search.includes("nocache")) return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
@@ -55,13 +58,18 @@ self.addEventListener("fetch", (event) => {
             networkResponse.status === 200 &&
             networkResponse.type === "basic"
           ) {
-            const clone = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            const cc = networkResponse.headers.get("Cache-Control");
+            if (!cc || !cc.includes("no-store")) {
+              const clone = networkResponse.clone();
+              caches
+                .open(CACHE_NAME)
+                .then((cache) => cache.put(event.request, clone));
+            }
           }
           return networkResponse;
         })
         .catch(() => {
-          // If offline and request is HTML navigation, fallback to index.html
+          // Cadangan offline untuk navigasi SPA
           if (event.request.mode === "navigate") {
             return caches.match("./index.html");
           }
