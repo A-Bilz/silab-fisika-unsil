@@ -560,6 +560,12 @@
           </div>
           <button id="resetFilters" class="btn outline">Reset filter</button>
         </div>
+        <div
+          id="filterChips"
+          class="filter-chips"
+          role="group"
+          aria-label="Pilih kategori cepat"
+        ></div>
         <p
           id="resultCount"
           class="result-count"
@@ -676,6 +682,92 @@
         ><button id="closeModalBottom" class="btn outline">Tutup</button>
       </div>
     </dialog>
+    <!-- ================================================================ -->
+    <!-- KERANJANG PINJAM ALAT (BOTTOM SHEET / DRAWER INTERAKTIF)         -->
+    <!-- Mengurangi gesekan: pilih alat, atur jumlah, kirim WA / Form     -->
+    <!-- ================================================================ -->
+    <div id="cartBackdrop" class="cart-backdrop" hidden></div>
+    <aside
+      id="cartDrawer"
+      class="cart-drawer"
+      role="region"
+      aria-labelledby="cartDrawerTitle"
+      hidden
+    >
+      <div class="cart-drawer-header">
+        <div>
+          <p class="eyebrow">Peminjaman Praktikum</p>
+          <h2 id="cartDrawerTitle">Keranjang Pinjam Alat</h2>
+        </div>
+        <button
+          id="closeCartBtn"
+          class="close-btn"
+          aria-label="Tutup keranjang peminjaman"
+        >
+          ×
+        </button>
+      </div>
+      <div class="cart-drawer-body">
+        <div id="cartItemsList" class="cart-items-list"></div>
+        <div class="cart-student-meta">
+          <label for="cartStudentName">Nama Pemohon (Opsional)</label>
+          <input
+            id="cartStudentName"
+            type="text"
+            placeholder="Contoh: Anzani / Kelompok 3"
+            autocomplete="name"
+          />
+          <label for="cartStudentNotes">Keperluan Praktikum / Catatan</label>
+          <input
+            id="cartStudentNotes"
+            type="text"
+            placeholder="Contoh: Modul GMB & Gaya Sentripetal"
+          />
+        </div>
+      </div>
+      <div class="cart-drawer-footer">
+        <button id="sendCartWABtn" class="btn primary btn-wa">
+          Kirim Pengajuan ke WhatsApp PLP
+        </button>
+        <button id="copyCartBtn" class="btn outline">
+          Salin Format Rincian Alat
+        </button>
+        <div class="cart-footer-links">
+          <a
+            id="cartOfficialFormLink"
+            class="btn text-link"
+            href="https://forms.gle/eu4CZGbYu1TwrWec6"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Buka Google Form Peminjaman Resmi ↗
+          </a>
+          <button id="clearCartBtn" class="btn text-danger">
+            Kosongkan Keranjang
+          </button>
+        </div>
+      </div>
+    </aside>
+    <!-- Tombol Mengambang (Floating Action Button) Keranjang Pinjam -->
+    <button
+      id="cartFloatingBtn"
+      class="cart-floating-btn"
+      aria-label="Lihat keranjang peminjaman alat"
+      aria-expanded="false"
+      hidden
+    >
+      <span class="cart-icon" aria-hidden="true">🛒</span>
+      <span class="cart-text">Keranjang Alat</span>
+      <span id="cartBadge" class="cart-badge">0</span>
+    </button>
+    <!-- Notifikasi Toast Mikro Interaksi -->
+    <div
+      id="toastNotification"
+      class="toast-notification"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
     <footer>
       <div class="wrap footer-inner">
         <div>

@@ -21,4 +21,17 @@ window.SILAB_CONFIG = {
     checkout: null, // Form 03: Berita Acara (BA) Peminjaman Alat
     return: null, // Form 04: Berita Acara (BA) Pengembalian Alat
   },
+
+  // Tautan resmi & kontak operasional Lab Pendidikan Fisika UNSIL
+  officialLinks: {
+    waPLP: "https://wa.me/6282391976750",
+    phonePLP: "0823-9197-6750",
+    namePLP: "Laboran / PLP Fisika UNSIL",
+    formEquipment: "https://forms.gle/eu4CZGbYu1TwrWec6",
+    formReturn: "https://forms.gle/MvGYv9BxaR9zXPn57",
+    formRoom: "https://forms.gle/4gtGYTmuNKnBYw8VA",
+    sheetEquipment: "https://docs.google.com/spreadsheets/d/1pLms8u0h-KzzGCAdGwq-MxSu0V10XOoY5JBxDlTr0QQ/edit",
+    sheetBHP: "https://docs.google.com/spreadsheets/d/1lcrLb97R9xGr88fYCfGLdD20OJwwXc7okAnZBG8yl9U/edit",
+    sheetRates: "https://docs.google.com/spreadsheets/d/1YIpFCHxAgMYssIrZCRgoEXRgxiCevHW1eRDHDA8EAlw/edit",
+  },
 };

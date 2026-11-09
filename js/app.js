@@ -385,7 +385,7 @@ function renderCatalog() {
     ? filtered
         .map(
           (item) =>
-            `<article class="card equipment-card"><span class="code">${escapeHTML(item.code)}</span><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Kondisi: ${escapeHTML(item.condition)}</p><p class="shelf">${escapeHTML(item.location)}</p><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button></article>`,
+            `<article class="card equipment-card"><span class="code">${escapeHTML(item.code)}</span><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Kondisi: ${escapeHTML(item.condition)}</p><p class="shelf">${escapeHTML(item.location)}</p><div class="equipment-actions"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button></div></article>`,
         )
         .join("")
     : '<div class="empty-state"><h2>Tidak ada alat yang cocok</h2><p>Coba kata kunci lain atau gunakan tombol Reset filter.</p></div>';
@@ -503,7 +503,166 @@ function renderGallery() {
 }
 
 /* ============================================================================
-   11. INITIALISASI UTAMA & PENDAFTARAN EVENT LISTENERS
+   11. SISTEM KERANJANG PINJAM ALAT (PINJAM BASKET & ZERO-FRICTION HANDOVER)
+   ============================================================================ */
+
+let cart = [];
+try {
+  const saved = localStorage.getItem("silab_cart");
+  if (saved) cart = JSON.parse(saved);
+} catch {
+  cart = [];
+}
+
+function saveCart() {
+  try {
+    localStorage.setItem("silab_cart", JSON.stringify(cart));
+  } catch {}
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  const badge = byId("cartBadge");
+  const floatingBtn = byId("cartFloatingBtn");
+  if (badge) badge.textContent = String(totalCount);
+  if (floatingBtn) {
+    floatingBtn.hidden = totalCount === 0;
+  }
+  renderCartItems();
+}
+
+function addToCart(code) {
+  const item = equipmentData.find((eq) => eq.code === code);
+  if (!item) return;
+  const existing = cart.find((c) => c.code === code);
+  if (existing) {
+    existing.qty += 1;
+  } else {
+    cart.push({ code: item.code, name: item.name, qty: 1 });
+  }
+  saveCart();
+  showToast(`✓ ${item.name} ditambahkan ke keranjang`);
+}
+
+function updateCartQty(code, delta) {
+  const existing = cart.find((c) => c.code === code);
+  if (!existing) return;
+  existing.qty += delta;
+  if (existing.qty <= 0) {
+    cart = cart.filter((c) => c.code !== code);
+  }
+  saveCart();
+}
+
+function removeFromCart(code) {
+  cart = cart.filter((c) => c.code !== code);
+  saveCart();
+}
+
+function clearCart() {
+  cart = [];
+  saveCart();
+  showToast("Keranjang peminjaman dikosongkan");
+}
+
+function renderCartItems() {
+  const listEl = byId("cartItemsList");
+  if (!listEl) return;
+  if (cart.length === 0) {
+    listEl.innerHTML =
+      '<div class="cart-empty-message"><p>Keranjang peminjaman masih kosong.</p><small>Pilih alat di Katalog dan klik tombol "+ Keranjang" untuk menambahkan.</small></div>';
+    return;
+  }
+  listEl.innerHTML = cart
+    .map(
+      (item) => `
+      <div class="cart-item-row">
+        <div class="cart-item-info">
+          <strong>${escapeHTML(item.name)}</strong>
+          <small>${escapeHTML(item.code)}</small>
+        </div>
+        <div class="cart-item-stepper">
+          <button class="stepper-btn" data-stepper-code="${escapeHTML(item.code)}" data-stepper-delta="-1" aria-label="Kurangi jumlah ${escapeHTML(item.name)}">−</button>
+          <span class="stepper-val">${item.qty}</span>
+          <button class="stepper-btn" data-stepper-code="${escapeHTML(item.code)}" data-stepper-delta="1" aria-label="Tambah jumlah ${escapeHTML(item.name)}">+</button>
+          <button class="cart-remove-btn" data-remove-code="${escapeHTML(item.code)}" aria-label="Hapus ${escapeHTML(item.name)} dari keranjang">×</button>
+        </div>
+      </div>
+    `,
+    )
+    .join("");
+}
+
+function openCartDrawer() {
+  byId("cartBackdrop").hidden = false;
+  byId("cartDrawer").hidden = false;
+  byId("cartFloatingBtn")?.setAttribute("aria-expanded", "true");
+  renderCartItems();
+}
+
+function closeCartDrawer() {
+  byId("cartBackdrop").hidden = true;
+  byId("cartDrawer").hidden = true;
+  byId("cartFloatingBtn")?.setAttribute("aria-expanded", "false");
+}
+
+let toastTimeout;
+function showToast(message) {
+  const toast = byId("toastNotification");
+  if (!toast) return;
+  clearTimeout(toastTimeout);
+  toast.textContent = message;
+  toast.hidden = false;
+  toastTimeout = setTimeout(() => {
+    toast.hidden = true;
+  }, 2500);
+}
+
+function composeCartText() {
+  const studentName =
+    byId("cartStudentName")?.value.trim() || "Mahasiswa Praktikan";
+  const notes = byId("cartStudentNotes")?.value.trim() || "-";
+  const lines = [
+    "Halo Bapak/Ibu PLP Laboratorium Pendidikan Fisika UNSIL,",
+    "",
+    `Saya: ${studentName}`,
+    `Keperluan / Modul: ${notes}`,
+    "",
+    "Mengajukan peminjaman alat praktikum laboratorium:",
+    ...cart.map(
+      (item, i) => `${i + 1}. [${item.code}] ${item.name} (${item.qty} unit)`,
+    ),
+    "",
+    "Mohon arahan dan konfirmasi ketersediaan alat. Terima kasih.",
+  ];
+  return lines.join("\n");
+}
+
+function copyCartToClipboard() {
+  if (cart.length === 0) {
+    showToast("Keranjang masih kosong");
+    return;
+  }
+  const text = composeCartText();
+  navigator.clipboard.writeText(text).then(
+    () => showToast("✓ Format rincian alat disalin ke clipboard!"),
+    () => showToast("Gagal menyalin otomatis, silakan salin manual."),
+  );
+}
+
+function sendCartToWhatsApp() {
+  if (cart.length === 0) {
+    showToast("Pilih alat terlebih dahulu!");
+    return;
+  }
+  const text = composeCartText();
+  const waUrl = `https://wa.me/6282391976750?text=${encodeURIComponent(text)}`;
+  window.open(waUrl, "_blank", "noopener,noreferrer");
+}
+
+/* ============================================================================
+   12. INITIALISASI UTAMA & PENDAFTARAN EVENT LISTENERS
    ============================================================================ */
 
 /**
@@ -531,6 +690,36 @@ function init() {
   equipmentData.forEach((item) =>
     byId("categoryFilter").add(new Option(item.category, item.category)),
   );
+
+  // Render chip kategori filter cepat
+  const categories = Array.from(
+    new Set(equipmentData.map((item) => item.category)),
+  );
+  const filterChipsEl = byId("filterChips");
+  if (filterChipsEl) {
+    filterChipsEl.innerHTML = [
+      '<button class="chip-btn active" data-category="ALL">Semua</button>',
+      ...categories.map(
+        (cat) =>
+          `<button class="chip-btn" data-category="${escapeHTML(cat)}">${escapeHTML(cat)}</button>`,
+      ),
+    ].join("");
+
+    filterChipsEl.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-category]");
+      if (!btn) return;
+      byId("categoryFilter").value = btn.dataset.category;
+      syncActiveChip(btn.dataset.category);
+      renderCatalog();
+    });
+  }
+
+  function syncActiveChip(cat) {
+    if (!filterChipsEl) return;
+    filterChipsEl.querySelectorAll(".chip-btn").forEach((chip) => {
+      chip.classList.toggle("active", chip.dataset.category === cat);
+    });
+  }
 
   byId("courseList").insertAdjacentHTML(
     "afterbegin",
@@ -587,19 +776,65 @@ function init() {
 
   // Listener pencarian dan filter katalog
   byId("searchEquipment").addEventListener("input", renderCatalog);
-  byId("categoryFilter").addEventListener("change", renderCatalog);
+  byId("categoryFilter").addEventListener("change", () => {
+    syncActiveChip(byId("categoryFilter").value);
+    renderCatalog();
+  });
   byId("resetFilters").addEventListener("click", () => {
     byId("searchEquipment").value = "";
     byId("categoryFilter").value = "ALL";
+    syncActiveChip("ALL");
     renderCatalog();
     byId("searchEquipment").focus();
   });
 
-  // Listener delegasi klik untuk tombol "Lihat kartu alat & SOP"
+  // Listener delegasi klik untuk tombol "Lihat kartu alat & SOP" dan "+ Keranjang"
   byId("catalogContainer").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-equipment]");
-    if (button) openKartuAlat(button.dataset.equipment);
+    const detailBtn = event.target.closest("[data-equipment]");
+    if (detailBtn) {
+      openKartuAlat(detailBtn.dataset.equipment);
+      return;
+    }
+    const addBtn = event.target.closest("[data-add-cart]");
+    if (addBtn) {
+      addToCart(addBtn.dataset.addCart);
+    }
   });
+
+  // Tombol floating keranjang & penutupan drawer
+  byId("cartFloatingBtn")?.addEventListener("click", openCartDrawer);
+  byId("closeCartBtn")?.addEventListener("click", closeCartDrawer);
+  byId("cartBackdrop")?.addEventListener("click", closeCartDrawer);
+
+  // Stepper & hapus item di dalam keranjang
+  byId("cartItemsList")?.addEventListener("click", (event) => {
+    const stepperBtn = event.target.closest("[data-stepper-code]");
+    if (stepperBtn) {
+      const code = stepperBtn.dataset.stepperCode;
+      const delta = parseInt(stepperBtn.dataset.stepperDelta, 10);
+      updateCartQty(code, delta);
+      return;
+    }
+    const removeBtn = event.target.closest("[data-remove-code]");
+    if (removeBtn) {
+      removeFromCart(removeBtn.dataset.removeCode);
+    }
+  });
+
+  // Aksi footer keranjang peminjaman
+  byId("sendCartWABtn")?.addEventListener("click", sendCartToWhatsApp);
+  byId("copyCartBtn")?.addEventListener("click", copyCartToClipboard);
+  byId("clearCartBtn")?.addEventListener("click", clearCart);
+
+  // Global keydown handler untuk Escape pada drawer
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !byId("cartDrawer")?.hidden) {
+      closeCartDrawer();
+    }
+  });
+
+  // Sinkronisasi status keranjang saat halaman pertama dibuka
+  updateCartUI();
 
   // Listener penutupan modal dialog
   byId("closeModal").addEventListener("click", closeKartuAlat);

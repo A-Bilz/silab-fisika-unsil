@@ -155,6 +155,53 @@ const { createServer } = require("../scripts/serve.cjs");
     checks.push(
       "Search, all eight category filters, empty/reset states, all eight cards, Escape/focus restoration, focus trap, close controls and print isolation pass",
     );
+
+    // Test Category Filter Chips
+    await page.goto(`${base}/#halaman-5`);
+    const chipBtns = page.locator("#filterChips .chip-btn");
+    assert((await chipBtns.count()) > 1);
+    await chipBtns.nth(1).click();
+    assert(
+      await chipBtns.nth(1).evaluate((el) => el.classList.contains("active")),
+    );
+    const selectedCat = await chipBtns.nth(1).getAttribute("data-category");
+    assert.equal(
+      await page.locator("#categoryFilter").inputValue(),
+      selectedCat,
+    );
+    await page.locator("#resetFilters").click();
+    assert.equal(await page.locator("#categoryFilter").inputValue(), "ALL");
+    assert(
+      await chipBtns.first().evaluate((el) => el.classList.contains("active")),
+    );
+
+    // Test Cart Drawer and Stepper
+    await page.locator(".add-cart-btn").first().click();
+    assert.equal(await page.locator("#cartBadge").textContent(), "1");
+    assert(await page.locator("#cartFloatingBtn").isVisible());
+    await page.locator("#cartFloatingBtn").click();
+    assert(await page.locator("#cartDrawer").isVisible());
+    assert(await page.locator("#cartBackdrop").isVisible());
+    assert.equal(await page.locator(".cart-item-row").count(), 1);
+
+    // Stepper +
+    await page.locator('.stepper-btn[data-stepper-delta="1"]').click();
+    assert.equal(await page.locator(".stepper-val").textContent(), "2");
+    assert.equal(await page.locator("#cartBadge").textContent(), "2");
+
+    // Close Cart via Close Button
+    await page.locator("#closeCartBtn").click();
+    assert.equal(await page.locator("#cartDrawer").isVisible(), false);
+
+    // Reopen & Close via Escape
+    await page.locator("#cartFloatingBtn").click();
+    assert(await page.locator("#cartDrawer").isVisible());
+    await page.keyboard.press("Escape");
+    assert.equal(await page.locator("#cartDrawer").isVisible(), false);
+    checks.push(
+      "Interactive category chips, Cart Drawer modal, quantity stepper and Escape controls pass",
+    );
+
     await page.goto(`${base}/#halaman-4`);
     for (const key of ["room", "equipment", "checkout", "return"]) {
       await page.locator(`[data-form="${key}"]`).click();
