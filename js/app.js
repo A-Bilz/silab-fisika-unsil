@@ -576,10 +576,20 @@ function renderForms() {
       const url = googleFormURL(config.forms?.[key]);
       const isBA = key === "checkout" || key === "return";
       const baTab = key === "return" ? "D04" : "D03";
-      const extraAction = isBA
-        ? `<div style="margin-top:0.6rem;"><button type="button" class="btn primary btn-sm open-inapp-ba-btn" data-ba-tab="${baTab}">Buka Berita Acara Digital (D-0${key === "return" ? "4" : "3"}) 📄</button></div>`
-        : "";
-      return `<article class="card form-card"><span class="index">0${index + 1}</span><h3>${title}</h3><p>${description}</p><small class="form-state">${url ? "Google Form · terbuka di tab baru" : "Tautan Google Form resmi belum tersedia"}</small>${url ? `<a class="btn primary" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">Buka ${title}</a>` : `<button class="btn outline" data-form="${key}">${title}</button>`}${extraAction}</article>`;
+      
+      let actionButtons = "";
+      if (url) {
+        actionButtons = `<a class="btn primary" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">Buka ${title}</a>`;
+      } else if (isBA) {
+        actionButtons = `
+          <button type="button" class="btn primary open-inapp-ba-btn" data-ba-tab="${baTab}" style="width:100%;margin-bottom:6px;">📄 Buka Berita Acara Digital (${baTab.slice(0, 1)}-0${baTab.slice(2)})</button>
+          <button class="btn outline" data-form="${key}" style="font-size:0.82rem;padding:4px 8px;opacity:0.85;">Info Tautan Google Form</button>
+        `;
+      } else {
+        actionButtons = `<button class="btn outline" data-form="${key}">${title}</button>`;
+      }
+
+      return `<article class="card form-card"><span class="index">0${index + 1}</span><h3>${title}</h3><p>${description}</p><small class="form-state">${url ? "Google Form · terbuka di tab baru" : (isBA ? "Dokumen resmi langsung di dalam web" : "Tautan Google Form resmi belum tersedia")}</small>${actionButtons}</article>`;
     })
     .join("");
 }
@@ -1901,6 +1911,7 @@ function init() {
 
   // Listener tombol formulir jika tautan Google Form belum diset
   byId("formsContainer").addEventListener("click", (event) => {
+    // 1. Tombol langsung Berita Acara (baik in-app btn maupun kartu D-03 / D-04)
     const baBtn = event.target.closest(".open-inapp-ba-btn");
     if (baBtn) {
       showBeritaAcaraModal(null, baBtn.dataset.baTab || "D03");
@@ -1912,13 +1923,15 @@ function init() {
     const target = formDefinitions.find(([key]) => key === formKey);
     if (!target) return;
     const [, title] = target;
+
     const isBA = formKey === "checkout" || formKey === "return";
     const baBtnHtml = isBA
-      ? ` <button type="button" class="btn primary btn-sm open-inapp-ba-btn" data-ba-tab="${formKey === "return" ? "D04" : "D03"}" style="margin-top:8px; display:inline-block; font-size:0.85rem; padding:4px 10px;">Buka Berita Acara Digital Sekarang 📄</button>`
+      ? ` <div style="margin-top:8px;"><button type="button" class="btn primary btn-sm open-inapp-ba-btn" data-ba-tab="${formKey === "return" ? "D04" : "D03"}">📄 Buka Berita Acara Digital Langsung di Layar (Tanpa Email)</button></div>`
       : "";
+
     byId("formStatus").hidden = false;
     byId("formStatus").innerHTML =
-      `Tautan resmi ${escapeHTML(title)} belum tersedia. <a href="mailto:fisikafkip@unsil.ac.id?subject=${encodeURIComponent(`Permintaan tautan ${title}`)}">Minta tautan kepada pengelola melalui fisikafkip@unsil.ac.id</a>.${baBtnHtml}`;
+      `Tautan Google Form untuk ${escapeHTML(title)} belum dikonfigurasi. Anda dapat menghubungi pengelola melalui surel <a href="mailto:fisikafkip@unsil.ac.id?subject=${encodeURIComponent(`Permintaan tautan ${title}`)}">fisikafkip@unsil.ac.id</a> atau WhatsApp admin.${baBtnHtml}`;
     byId("formStatus").scrollIntoView({ block: "nearest" });
   });
 

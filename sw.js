@@ -2,7 +2,7 @@
  * Service Worker SILAB Fisika UNSIL (Network-first navigation, cache fallback)
  */
 
-const CACHE_NAME = "silab-unsil-v6-20261110-catalog-photos";
+const CACHE_NAME = "silab-unsil-v7-20261110-v7";
 const APP_SHELL = [
   "./",
   "./index.html",
