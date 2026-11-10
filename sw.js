@@ -2,13 +2,12 @@
  * Service Worker SILAB Fisika UNSIL (Network-first navigation, cache fallback)
  */
 
-const CACHE_NAME = "silab-unsil-v5-20261110-gallery";
+const CACHE_NAME = "silab-unsil-v6-20261110-catalog-photos";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./galeri-foto.html",
   "./css/style.css",
-  "./js/config.js",
   "./js/qrcode.min.js",
   "./js/equipment-data.js",
   "./js/gallery-manifest.js",
@@ -46,7 +45,12 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/api/") || url.search.includes("nocache")) return;
+  if (
+    url.pathname.startsWith("/api/") ||
+    url.pathname.endsWith("/config.js") ||
+    url.search.includes("nocache")
+  )
+    return;
 
   // Navigasi halaman HTML: Network-first agar update langsung muncul tanpa tertahan cache
   if (event.request.mode === "navigate") {

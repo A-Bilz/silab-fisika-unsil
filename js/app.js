@@ -432,6 +432,27 @@ function switchPage(focus = true) {
 let currentSizeFilter = "ALL";
 
 /**
+ * Mencari foto fisik instrumen laboratorium dari manifest galeri atau localStorage pengguna.
+ */
+function getPhotoForItem(code, name) {
+  let photoMap = window.EQUIPMENT_GALLERY || {};
+  try {
+    const rawMap = localStorage.getItem("silab_photo_mapping_v1");
+    if (rawMap) photoMap = Object.assign({}, photoMap, JSON.parse(rawMap));
+  } catch (_) {}
+  for (const k in photoMap) {
+    const entry = photoMap[k];
+    if (entry && entry.name) {
+      const n = entry.name.toLowerCase();
+      if (n.includes(code.toLowerCase()) || n.includes(name.toLowerCase())) {
+        return entry.path;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Merender daftar kartu alat berdasarkan kata kunci pencarian, filter kategori, dan ukuran.
  * Menangani tampilan kosong (empty state) jika tidak ada alat yang cocok.
  */
@@ -456,34 +477,15 @@ function renderCatalog() {
     return matchQuery && matchCategory && matchSize;
   });
 
-  let photoMap = {};
-  try {
-    const rawMap = localStorage.getItem("silab_photo_mapping_v1");
-    if (rawMap) photoMap = JSON.parse(rawMap);
-  } catch (_) {}
-
-  const getPhotoForItem = (code, name) => {
-    for (const k in photoMap) {
-      const entry = photoMap[k];
-      if (entry && entry.name) {
-        const n = entry.name.toLowerCase();
-        if (n.includes(code.toLowerCase()) || n.includes(name.toLowerCase())) {
-          return entry.path;
-        }
-      }
-    }
-    return null;
-  };
-
   byId("resultCount").textContent =
     `${filtered.length} dari ${equipmentData.length} alat ditampilkan`;
   byId("catalogContainer").innerHTML = filtered.length
     ? filtered
         .map(
           (item) => {
-            const mappedPhoto = getPhotoForItem(item.code, item.name);
+            const mappedPhoto = item.image || getPhotoForItem(item.code, item.name);
             const visualThumb = mappedPhoto
-              ? `<img src="${escapeHTML(mappedPhoto)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy">`
+              ? `<img src="${escapeHTML(mappedPhoto)}" alt="Foto ${escapeHTML(item.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy">`
               : (item.svgBlueprint || "");
             return `<article class="card equipment-card" data-code="${escapeHTML(item.code)}"><div class="card-badges-row"><span class="code">${escapeHTML(item.code)}</span><span class="size-badge ${item.sizeType === "BESAR" ? "badge-besar" : "badge-kecil"}">${item.sizeType === "BESAR" ? "Alat Besar" : "Alat Kecil"}</span><span class="cond-badge ${item.condition.includes("Baik") ? "cond-good" : "cond-warning"}">${escapeHTML(item.condition)}</span></div><div class="equipment-blueprint-thumb" aria-hidden="true">${visualThumb}</div><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Stok: <strong>${escapeHTML(item.quantity)}</strong></p><p class="shelf">${escapeHTML(item.location)}</p><div class="card-actions-grid"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><div class="card-btn-split"><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button><button class="btn btn-primary-soft direct-loan-btn" data-direct-loan="${escapeHTML(item.code)}" aria-label="Ajukan pinjam ${escapeHTML(item.name)}">Ajukan Pinjam</button></div></div></article>`;
           }
@@ -501,10 +503,14 @@ function renderCatalog() {
  * Mengunci fokus keyboard di dalam modal untuk kepatuhan aksesibilitas WCAG.
  * @param {string} code Kode unik alat (misal: "FIS-OPT-001")
  */
-function openKartuAlat(code) {
+function openKartuAlat(code, triggerElement = null) {
   const item = equipmentData.find((equipment) => equipment.code === code);
   if (!item) return;
-  modalOpener = document.activeElement;
+  modalOpener =
+    triggerElement ||
+    (document.activeElement?.dataset?.equipment === code
+      ? document.activeElement
+      : document.querySelector(`[data-equipment="${CSS.escape(code)}"]`));
   const details = [
     ["Kode katalog (bukan nomor aset)", item.code],
     ["Bidang", item.category],
@@ -517,8 +523,14 @@ function openKartuAlat(code) {
     ["Rencana verifikasi / kalibrasi (usulan)", item.calibrationPlan],
     ["Jadwal berikutnya", item.nextMaintenance],
   ];
+
+  const photoUrl = item.image || getPhotoForItem(item.code, item.name);
+  const heroImage = photoUrl
+    ? `<div class="modal-kartu-photo" style="margin-bottom:1.25rem;border-radius:8px;overflow:hidden;max-height:260px;background:#0b1329;text-align:center;border:1px solid #1e293b;"><img src="${escapeHTML(photoUrl)}" alt="Foto fisik ${escapeHTML(item.name)}" style="max-height:260px;width:auto;max-width:100%;object-fit:contain;margin:0 auto;display:block;"></div>`
+    : (item.svgBlueprint ? `<div class="modal-kartu-blueprint" style="margin-bottom:1.25rem;border-radius:8px;overflow:hidden;height:160px;background:#0f172a;display:flex;align-items:center;justify-content:center;border:1px solid #1e293b;">${item.svgBlueprint}</div>` : "");
+
   byId("modalKartuBody").innerHTML =
-    `<h3>${escapeHTML(item.name)}</h3><p class="source-note">Laboratorium Pendidikan Fisika UNSIL · FKIP · Kampus I Tasikmalaya</p><dl class="equipment-details">${details.map(([label, value]) => `<dt>${escapeHTML(label)}</dt><dd>${escapeHTML(value)}</dd>`).join("")}</dl><div class="notice"><strong>Data belum diverifikasi; bukan bukti kelayakan alat.</strong><p>Rencana kalibrasi dan penyimpanan merupakan usulan. Ikuti manual model aktual serta SOP yang disahkan laboran sebelum menggunakan alat.</p></div><h3>SOP pengoperasian ringkas</h3><ol class="sop">${listHTML(item.sop)}</ol><p class="source-note">Buku log: nama pengguna, tanggal, waktu mulai/selesai, tujuan, pengaturan, kondisi awal/akhir, dan verifikasi laboran.</p>`;
+    `<h3>${escapeHTML(item.name)}</h3><p class="source-note">Laboratorium Pendidikan Fisika UNSIL · FKIP · Kampus I Tasikmalaya</p>${heroImage}<dl class="equipment-details">${details.map(([label, value]) => `<dt>${escapeHTML(label)}</dt><dd>${escapeHTML(value)}</dd>`).join("")}</dl><div class="notice"><strong>Data belum diverifikasi; bukan bukti kelayakan alat.</strong><p>Rencana kalibrasi dan penyimpanan merupakan usulan. Ikuti manual model aktual serta SOP yang disahkan laboran sebelum menggunakan alat.</p></div><h3>SOP pengoperasian ringkas</h3><ol class="sop">${listHTML(item.sop)}</ol><p class="source-note">Buku log: nama pengguna, tanggal, waktu mulai/selesai, tujuan, pengaturan, kondisi awal/akhir, dan verifikasi laboran.</p>`;
   byId("kartuAlatModal").showModal();
   document.body.classList.add("modal-open");
   byId("closeModal").focus();
@@ -562,7 +574,12 @@ function renderForms() {
   byId("formsContainer").innerHTML = formDefinitions
     .map(([key, title, description], index) => {
       const url = googleFormURL(config.forms?.[key]);
-      return `<article class="card form-card"><span class="index">0${index + 1}</span><h3>${title}</h3><p>${description}</p><small class="form-state">${url ? "Google Form · terbuka di tab baru" : "Tautan Google Form resmi belum tersedia"}</small>${url ? `<a class="btn primary" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">Buka ${title}</a>` : `<button class="btn outline" data-form="${key}">${title}</button>`}</article>`;
+      const isBA = key === "checkout" || key === "return";
+      const baTab = key === "return" ? "D04" : "D03";
+      const extraAction = isBA
+        ? `<div style="margin-top:0.6rem;"><button type="button" class="btn primary btn-sm open-inapp-ba-btn" data-ba-tab="${baTab}">Buka Berita Acara Digital (D-0${key === "return" ? "4" : "3"}) 📄</button></div>`
+        : "";
+      return `<article class="card form-card"><span class="index">0${index + 1}</span><h3>${title}</h3><p>${description}</p><small class="form-state">${url ? "Google Form · terbuka di tab baru" : "Tautan Google Form resmi belum tersedia"}</small>${url ? `<a class="btn primary" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">Buka ${title}</a>` : `<button class="btn outline" data-form="${key}">${title}</button>`}${extraAction}</article>`;
     })
     .join("");
 }
@@ -1157,6 +1174,13 @@ function switchBATab(tab) {
       </div>
     </div>
   `;
+
+  const switchBtn = byId("switchBATabBtn");
+  if (switchBtn) {
+    switchBtn.textContent = isD03
+      ? "Ganti ke Dokumen D-04 (Pengembalian)"
+      : "Ganti ke Dokumen D-03 (Peminjaman)";
+  }
 }
 
 /* ==========================================================================
@@ -1348,6 +1372,8 @@ window.printLogbookBA = function(recordId, tab) {
   }
 };
 
+window.showBeritaAcaraModal = showBeritaAcaraModal;
+window.closeBeritaAcaraModal = closeBeritaAcaraModal;
 window.updateRecordStatus = updateRecordStatus;
 
 function exportLogbookCSV() {
@@ -1615,7 +1641,7 @@ function init() {
   byId("catalogContainer").addEventListener("click", (event) => {
     const detailBtn = event.target.closest("[data-equipment]");
     if (detailBtn) {
-      openKartuAlat(detailBtn.dataset.equipment);
+      openKartuAlat(detailBtn.dataset.equipment, detailBtn);
       return;
     }
     const addBtn = event.target.closest("[data-add-cart]");
@@ -1774,6 +1800,7 @@ function init() {
 
   // Listener Berita Acara D-03 / D-04
   byId("closeBAModal")?.addEventListener("click", closeBeritaAcaraModal);
+  byId("closeBAModalBottom")?.addEventListener("click", closeBeritaAcaraModal);
   byId("closeBATopBtn")?.addEventListener("click", closeBeritaAcaraModal);
   byId("beritaAcaraModal")?.addEventListener("close", () => {
     document.body.classList.remove("modal-open");
@@ -1781,7 +1808,13 @@ function init() {
   });
   byId("baTabD03")?.addEventListener("click", () => switchBATab("D03"));
   byId("baTabD04")?.addEventListener("click", () => switchBATab("D04"));
+  byId("switchBATabBtn")?.addEventListener("click", () => {
+    const isCurrentlyD03 = byId("baTabD03").classList.contains("active");
+    switchBATab(isCurrentlyD03 ? "D04" : "D03");
+  });
   byId("printBABtn")?.addEventListener("click", () => window.print());
+  byId("openStandaloneBABtn")?.addEventListener("click", () => showBeritaAcaraModal(null, "D03"));
+  byId("openBABtnFromOfficial")?.addEventListener("click", () => showBeritaAcaraModal(null, "D03"));
 
   // Listener Admin Logbook Peminjaman Masuk
   byId("openLogbookFromHalaman4")?.addEventListener("click", openAdminLogbook);
@@ -1868,14 +1901,24 @@ function init() {
 
   // Listener tombol formulir jika tautan Google Form belum diset
   byId("formsContainer").addEventListener("click", (event) => {
+    const baBtn = event.target.closest(".open-inapp-ba-btn");
+    if (baBtn) {
+      showBeritaAcaraModal(null, baBtn.dataset.baTab || "D03");
+      return;
+    }
     const button = event.target.closest("[data-form]");
     if (!button) return;
-    const title = formDefinitions.find(
-      ([key]) => key === button.dataset.form,
-    )[1];
+    const formKey = button.dataset.form;
+    const target = formDefinitions.find(([key]) => key === formKey);
+    if (!target) return;
+    const [, title] = target;
+    const isBA = formKey === "checkout" || formKey === "return";
+    const baBtnHtml = isBA
+      ? ` <button type="button" class="btn primary btn-sm open-inapp-ba-btn" data-ba-tab="${formKey === "return" ? "D04" : "D03"}" style="margin-top:8px; display:inline-block; font-size:0.85rem; padding:4px 10px;">Buka Berita Acara Digital Sekarang 📄</button>`
+      : "";
     byId("formStatus").hidden = false;
     byId("formStatus").innerHTML =
-      `Tautan resmi ${escapeHTML(title)} belum tersedia. <a href="mailto:fisikafkip@unsil.ac.id?subject=${encodeURIComponent(`Permintaan tautan ${title}`)}">Minta tautan kepada pengelola melalui fisikafkip@unsil.ac.id</a>.`;
+      `Tautan resmi ${escapeHTML(title)} belum tersedia. <a href="mailto:fisikafkip@unsil.ac.id?subject=${encodeURIComponent(`Permintaan tautan ${title}`)}">Minta tautan kepada pengelola melalui fisikafkip@unsil.ac.id</a>.${baBtnHtml}`;
     byId("formStatus").scrollIntoView({ block: "nearest" });
   });
 
@@ -2257,10 +2300,11 @@ if ("serviceWorker" in navigator) {
       });
   });
 
-  // Jika service worker baru mengambil alih, reload sekali agar UI langsung sinkron
+  // Jika service worker baru mengambil alih update, reload agar aset terbaru aktif
+  let hadController = Boolean(navigator.serviceWorker.controller);
   let refreshing = false;
   navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!refreshing) {
+    if (hadController && !refreshing) {
       refreshing = true;
       window.location.reload();
     }

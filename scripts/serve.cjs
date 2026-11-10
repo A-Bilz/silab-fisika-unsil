@@ -3,10 +3,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const root = path.resolve(__dirname, "..");
 const types = {
-  ".html": "text/html",
-  ".css": "text/css",
-  ".js": "text/javascript",
-  ".svg": "image/svg+xml",
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".svg": "image/svg+xml; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
 };
 function createServer() {
   return http.createServer((request, response) => {
@@ -34,7 +40,7 @@ function createServer() {
       }
       response
         .writeHead(200, {
-          "Content-Type": `${types[path.extname(file)]}; charset=utf-8`,
+          "Content-Type": types[path.extname(file)],
           "Cache-Control": "no-store",
         })
         .end(content);
