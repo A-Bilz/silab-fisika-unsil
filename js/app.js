@@ -1381,9 +1381,24 @@ function init() {
 // Registrasi Service Worker untuk kapabilitas offline & PWA instan
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js").catch((err) => {
-      console.warn("Registrasi Service Worker gagal:", err);
-    });
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((reg) => {
+        // Paksa cek update ke server setiap kali halaman dimuat
+        reg.update().catch(() => {});
+      })
+      .catch((err) => {
+        console.warn("Registrasi Service Worker gagal:", err);
+      });
+  });
+
+  // Jika service worker baru mengambil alih, reload sekali agar UI langsung sinkron
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
   });
 }
 
