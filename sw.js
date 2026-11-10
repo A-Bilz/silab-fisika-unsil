@@ -1,8 +1,8 @@
 /**
- * Service Worker SILAB Fisika UNSIL (Cache-first offline app shell)
+ * Service Worker SILAB Fisika UNSIL (Network-first navigation, cache fallback)
  */
 
-const CACHE_NAME = "silab-unsil-v2";
+const CACHE_NAME = "silab-unsil-v3-20261110";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -16,11 +16,11 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting()),
+      .then((cache) => cache.addAll(APP_SHELL)),
   );
 });
 
@@ -38,17 +38,29 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Hanya layani permintaan GET
   if (event.request.method !== "GET") return;
 
   const url = new URL(event.request.url);
-
-  // Abaikan permintaan lintas-origin atau protokol non-http (ekstensi peramban)
   if (url.origin !== self.location.origin) return;
-
-  // Jangan cache API dinamis atau parameter bypass
   if (url.pathname.startsWith("/api/") || url.search.includes("nocache")) return;
 
+  // Navigasi halaman HTML: Network-first agar update langsung muncul tanpa tertahan cache
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match("./index.html") || caches.match("./")),
+    );
+    return;
+  }
+
+  // Aset statis: Stale-while-revalidate dengan auto-refresh
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
@@ -68,12 +80,7 @@ self.addEventListener("fetch", (event) => {
           }
           return networkResponse;
         })
-        .catch(() => {
-          // Cadangan offline untuk navigasi SPA
-          if (event.request.mode === "navigate") {
-            return caches.match("./index.html");
-          }
-        });
+        .catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
     }),

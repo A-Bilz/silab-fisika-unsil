@@ -1126,21 +1126,38 @@ function init() {
       badge.innerHTML = '<span class="lab-status-dot"></span> Buka (08.00 - 15.30 WIB)';
       const heroStatus = byId("heroLiveStatus");
       if (heroStatus) {
-        heroStatus.className = "app-live-status-pill open";
-        heroStatus.innerHTML = '<span class="status-pulse-dot"></span><span class="status-pill-text">Buka Sekarang</span>';
+        heroStatus.className = "station-live-status open";
+        heroStatus.innerHTML = '<span class="station-solid-dot"></span><span class="status-pill-text">Buka · Tutup pukul 15.30 WIB</span>';
       }
     } else {
       badge.className = "lab-status-badge closed";
       badge.innerHTML = '<span class="lab-status-dot"></span> Tutup (Buka Senin - Jumat 08.00)';
       const heroStatus = byId("heroLiveStatus");
       if (heroStatus) {
-        heroStatus.className = "app-live-status-pill closed";
-        heroStatus.innerHTML = '<span class="status-pulse-dot"></span><span class="status-pill-text">Tutup</span>';
+        heroStatus.className = "station-live-status closed";
+        heroStatus.innerHTML = '<span class="station-solid-dot"></span><span class="status-pill-text">Tutup · Buka kembali 08.00 WIB</span>';
       }
     }
   }
   updateLabStatus();
   setInterval(updateLabStatus, 60000);
+
+  // Quick Search Form di Home Section -> Auto navigate & filter ke Katalog
+  const heroSearchForm = byId("heroSearchForm");
+  const heroSearchInput = byId("heroSearchInput");
+  if (heroSearchForm && heroSearchInput) {
+    heroSearchForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const query = heroSearchInput.value.trim();
+      window.location.hash = "#halaman-5";
+      const searchEquipment = byId("searchEquipment");
+      if (searchEquipment) {
+        searchEquipment.value = query;
+        searchEquipment.dispatchEvent(new Event("input", { bubbles: true }));
+        searchEquipment.focus();
+      }
+    });
+  }
 
   // ==========================================================================
   // IN-APP BARCODE & QR CODE SCANNER (KAMERA & DETEKSI OTOMATIS)
