@@ -33,5 +33,7 @@ window.SILAB_CONFIG = {
     sheetEquipment: "https://docs.google.com/spreadsheets/d/1pLms8u0h-KzzGCAdGwq-MxSu0V10XOoY5JBxDlTr0QQ/edit",
     sheetBHP: "https://docs.google.com/spreadsheets/d/1lcrLb97R9xGr88fYCfGLdD20OJwwXc7okAnZBG8yl9U/edit",
     sheetRates: "https://docs.google.com/spreadsheets/d/1YIpFCHxAgMYssIrZCRgoEXRgxiCevHW1eRDHDA8EAlw/edit",
+    // Webhook Google Apps Script untuk pencatatan peminjaman otomatis langsung ke Google Sheets (tanpa Google Form)
+    loanSyncEndpoint: null,
   },
 };

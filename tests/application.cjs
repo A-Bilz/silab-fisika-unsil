@@ -27,7 +27,7 @@ const { createServer } = require("../scripts/serve.cjs");
     });
     await page.goto(base);
     assert.equal(await page.locator(".course").count(), 7);
-    assert.equal(await page.locator(".equipment-card").count(), 8);
+    assert.equal(await page.locator(".equipment-card").count(), 50);
     assert.equal(await page.locator("#ratesBody tr").count(), 14);
     for (const width of [320, 375, 600, 768, 960, 1280, 1440]) {
       await page.setViewportSize({ width, height: 900 });
@@ -79,16 +79,19 @@ const { createServer } = require("../scripts/serve.cjs");
     );
     await page.locator("#searchEquipment").fill("  OSCILLOSCOPE ");
     assert.equal(await page.locator(".equipment-card").count(), 1);
-    await page.locator("#categoryFilter").selectOption("Mekanika Presisi");
+    await page.locator("#categoryFilter").selectOption("Mekanika & Kalibrasi");
     assert.equal(await page.locator(".equipment-card").count(), 0);
     assert(await page.locator(".empty-state").isVisible());
     await page.locator("#resetFilters").click();
-    assert.equal(await page.locator(".equipment-card").count(), 8);
+    assert.equal(await page.locator(".equipment-card").count(), 50);
     for (const category of await page
       .locator("#categoryFilter option")
       .evaluateAll((options) => options.slice(1).map((o) => o.value))) {
       await page.locator("#categoryFilter").selectOption(category);
-      assert.equal(await page.locator(".equipment-card").count(), 1);
+      assert(
+        (await page.locator(".equipment-card").count()) >= 1,
+        `Kategori ${category} minimal punya 1 alat`,
+      );
     }
     await page.locator("#resetFilters").click();
     const codes = await page
@@ -336,7 +339,7 @@ const { createServer } = require("../scripts/serve.cjs");
 
     // Test official links & sheets cards
     await page.goto(`${base}/#halaman-4`);
-    assert(await page.locator(".official-access-card").isVisible());
+    assert(await page.locator(".official-access-card").first().isVisible());
     await page.goto(`${base}/#halaman-6`);
     assert(await page.locator(".official-sheets-card").isVisible());
 

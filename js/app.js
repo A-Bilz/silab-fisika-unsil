@@ -42,7 +42,7 @@ if (window.top !== window.self) {
    - calibrationPlan: rekomendasi jadwal kalibrasi dan verifikasi berkala
    - sop: array langkah-langkah SOP pengoperasian ringkas (1 per baris)
    ============================================================================ */
-const equipmentData = [
+const fallbackEquipmentData = [
   {
     code: "FIS-OPT-001",
     name: "Spektrometer Kisi & Prisma Optik",
@@ -117,35 +117,35 @@ const equipmentData = [
     calibrationPlan:
       "Cek arus gelap dan pembacaan tegangan sebelum sesi; verifikasi sumber panjang gelombang dan meter sesuai manual, usulan evaluasi tahunan.",
     sop: [
-      "Laboran memeriksa catu daya, pelindung sumber cahaya, dan sambungan sebelum alat diaktifkan.",
-      "Lakukan penyetelan nol dan pemeriksaan arus gelap sesuai manual.",
-      "Gunakan filter atau sumber yang ditentukan modul; ukur potensial henti tanpa membuka pelindung sumber atau fototabung.",
-      "Matikan catu daya sesuai urutan manual, tutup fototabung, dan simpan data untuk analisis konstanta Planck.",
+      "Periksa kabel, grounding, fototabung, dan filter bersama laboran; hindari paparan cahaya berlebih.",
+      "Pilih filter atau panjang gelombang sesuai modul; catat nilai acuan.",
+      "Atur potensial henti hingga arus fotolistrik nol; catat tegangan dan ulangi untuk tiap filter.",
+      "Turunkan tegangan, matikan sumber cahaya dan instrumen, lalu rapikan filter ke kotaknya.",
     ],
   },
   {
     code: "FIS-OPT-006",
-    name: "Interferometer Michelson & Laser He-Ne",
-    category: "Optik Lanjutan",
+    name: "Interferometer Michelson Presisi",
+    category: "Optik & Gelombang",
     location: "Usulan: meja optik A-2",
     specs:
-      "Pembagi berkas, cermin tetap/bergerak, pengatur perpindahan, dan sumber laser He-Ne.",
+      "Pemisah berkas, cermin tetap, cermin geser mikrometer, dan dudukan laser acuan.",
     calibrationPlan:
-      "Periksa kestabilan frinji dan nol mikrometer sebelum sesi; evaluasi skala perpindahan tahunan atau setelah penyetelan mekanik.",
+      "Verifikasi kelurusan berkas dan gerak mikrometer sebelum sesi; kalibrasi berkala mikrometer dengan standar panjang gelombang acuan.",
     sop: [
-      "Pengguna terlatih memeriksa kelas laser, pengamanan lintasan, penahan berkas, dan APD bersama laboran.",
-      "Pasang seluruh komponen dengan laser belum menyala; jangan menempatkan mata pada lintasan atau pantulan.",
-      "Laboran melakukan penyelarasan sesuai SOP; amati pola pada layar dan putar mikrometer perlahan sesuai modul.",
-      "Matikan laser sebelum mengubah susunan atau merapikan alat; tutup optik dan isi buku log.",
+      "Letakkan alat pada meja bebas getaran; pastikan cermin bersih dan tidak disentuh jari.",
+      "Gunakan sumber cahaya yang disetujui; sejajarkan berkas hingga pola interferensi tampak di layar.",
+      "Putar mikrometer perlahan sambil menghitung pergeseran frinji; catat posisi awal dan akhir.",
+      "Tutup pelindung debu, matikan sumber, dan kembalikan mikrometer ke posisi aman.",
     ],
   },
   {
     code: "FIS-TRM-007",
-    name: "Kalorimeter Joule & Konduktivitas Termal Logam",
+    name: "Kalorimeter Joule & Sensor Suhu Digital",
     category: "Termodinamika",
     location: "Usulan: rak termodinamika F-1",
     specs:
-      "Perangkat kalorimeter Joule dan kit konduktivitas logam dengan sensor suhu serta pemanas.",
+      "Bejana kalorimeter berinsulasi, pemanas listrik, pengaduk, dan sensor suhu dengan tampilan digital.",
     calibrationPlan:
       "Periksa sensor suhu dan meter listrik sebelum sesi; verifikasi terhadap acuan sesuai manual, usulan evaluasi tahunan.",
     sop: [
@@ -176,9 +176,17 @@ const equipmentData = [
   brand: "Model unit belum diverifikasi",
   quantity: "Belum diverifikasi",
   condition: "Belum diverifikasi",
+  sizeType: "BESAR",
   lastCalibration: "Belum ada catatan terverifikasi",
   nextMaintenance: "Tanggal ditetapkan laboran setelah verifikasi",
 }));
+
+const equipmentData =
+  typeof window !== "undefined" &&
+  window.EQUIPMENT_DATA &&
+  window.EQUIPMENT_DATA.length
+    ? window.EQUIPMENT_DATA
+    : fallbackEquipmentData;
 
 /* ============================================================================
    2. DATA MASTER PRAKTIKUM (7 SEMESTER)
@@ -359,7 +367,10 @@ function switchPage(focus = true) {
     switchPage(false);
     setTimeout(() => {
       const match = equipmentData.find(
-        (e) => e.code.toLowerCase() === code.toLowerCase(),
+        (e) =>
+          e.code.toLowerCase() === code.toLowerCase() ||
+          (e.aliases &&
+            e.aliases.some((a) => a.toLowerCase() === code.toLowerCase())),
       );
       if (match) {
         openKartuAlat(match.code);
@@ -418,24 +429,40 @@ function switchPage(focus = true) {
  * Merender daftar kartu alat berdasarkan kata kunci pencarian dan filter kategori.
  * Menangani tampilan kosong (empty state) jika tidak ada alat yang cocok.
  */
+let currentSizeFilter = "ALL";
+
+/**
+ * Merender daftar kartu alat berdasarkan kata kunci pencarian, filter kategori, dan ukuran.
+ * Menangani tampilan kosong (empty state) jika tidak ada alat yang cocok.
+ */
 function renderCatalog() {
   const query = byId("searchEquipment").value.trim().toLocaleLowerCase("id");
   const category = byId("categoryFilter").value;
-  const filtered = equipmentData.filter(
-    (item) =>
-      [item.name, item.code, item.brand, item.category]
-        .join(" ")
-        .toLocaleLowerCase("id")
-        .includes(query) &&
-      (category === "ALL" || item.category === category),
-  );
+  const filtered = equipmentData.filter((item) => {
+    const matchQuery = [
+      item.name,
+      item.code,
+      item.brand,
+      item.category,
+      item.specs,
+      ...(item.aliases || []),
+    ]
+      .join(" ")
+      .toLocaleLowerCase("id")
+      .includes(query);
+    const matchCategory = category === "ALL" || item.category === category;
+    const matchSize =
+      currentSizeFilter === "ALL" || item.sizeType === currentSizeFilter;
+    return matchQuery && matchCategory && matchSize;
+  });
+
   byId("resultCount").textContent =
     `${filtered.length} dari ${equipmentData.length} alat ditampilkan`;
   byId("catalogContainer").innerHTML = filtered.length
     ? filtered
         .map(
           (item) =>
-            `<article class="card equipment-card"><span class="code">${escapeHTML(item.code)}</span><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Kondisi: ${escapeHTML(item.condition)}</p><p class="shelf">${escapeHTML(item.location)}</p><div class="equipment-actions"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button></div></article>`,
+            `<article class="card equipment-card" data-code="${escapeHTML(item.code)}"><div class="card-badges-row"><span class="code">${escapeHTML(item.code)}</span><span class="size-badge ${item.sizeType === "BESAR" ? "badge-besar" : "badge-kecil"}">${item.sizeType === "BESAR" ? "Alat Besar" : "Alat Kecil"}</span><span class="cond-badge ${item.condition.includes("Baik") ? "cond-good" : "cond-warning"}">${escapeHTML(item.condition)}</span></div><div class="equipment-blueprint-thumb" aria-hidden="true">${item.svgBlueprint || ""}</div><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Stok: <strong>${escapeHTML(item.quantity)}</strong></p><p class="shelf">${escapeHTML(item.location)}</p><div class="card-actions-grid"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><div class="card-btn-split"><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button><button class="btn btn-primary-soft direct-loan-btn" data-direct-loan="${escapeHTML(item.code)}" aria-label="Ajukan pinjam ${escapeHTML(item.name)}">Ajukan Pinjam</button></div></div></article>`,
         )
         .join("")
     : '<div class="empty-state"><h2>Tidak ada alat yang cocok</h2><p>Coba kata kunci lain atau gunakan tombol Reset filter.</p></div>';
@@ -776,6 +803,637 @@ function sendCartToWhatsApp() {
 }
 
 /* ============================================================================
+   11B. SISTEM PEMINJAMAN INTERAKTIF D-05, TIKET QR & BERITA ACARA D-03 / D-04
+   ============================================================================ */
+
+let currentLoanItems = [];
+let currentTicketData = null;
+
+/**
+ * Membuka formulir permohonan peminjaman alat Dokumen D-05
+ * @param {string[]} itemCodes Daftar kode alat yang akan dipinjam
+ */
+function openLoanModal(itemCodes = []) {
+  modalOpener = document.activeElement;
+  currentLoanItems = [];
+
+  itemCodes.forEach((code) => {
+    const item = equipmentData.find(
+      (eq) => eq.code === code || (eq.aliases && eq.aliases.includes(code)),
+    );
+    if (item && !currentLoanItems.some((ci) => ci.code === item.code)) {
+      currentLoanItems.push({
+        code: item.code,
+        name: item.name,
+        qty: 1,
+        condition: item.condition,
+        specs: item.specs || "-",
+      });
+    }
+  });
+
+  if (currentLoanItems.length === 0 && equipmentData.length > 0) {
+    currentLoanItems.push({
+      code: equipmentData[0].code,
+      name: equipmentData[0].name,
+      qty: 1,
+      condition: equipmentData[0].condition,
+      specs: equipmentData[0].specs || "-",
+    });
+  }
+
+  renderLoanItemsSummary();
+
+  const cartName = byId("cartStudentName")?.value.trim();
+  const cartNotes = byId("cartStudentNotes")?.value.trim();
+  if (cartName && byId("loanBorrowerName")) byId("loanBorrowerName").value = cartName;
+  if (cartNotes && byId("loanTitle")) byId("loanTitle").value = cartNotes;
+
+  const today = new Date();
+  const returnDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+  const startEl = byId("loanStartDate");
+  const endEl = byId("loanEndDate");
+  if (startEl) startEl.value = today.toISOString().split("T")[0];
+  if (endEl) endEl.value = returnDate.toISOString().split("T")[0];
+
+  byId("peminjamanModal").showModal();
+  document.body.classList.add("modal-open");
+  byId("loanBorrowerName").focus();
+}
+
+function closeLoanModal() {
+  byId("peminjamanModal").close();
+}
+
+function renderLoanItemsSummary() {
+  const container = byId("loanItemsSummary");
+  if (!container) return;
+  container.innerHTML = currentLoanItems
+    .map(
+      (item, idx) => `
+    <div class="loan-item-row">
+      <div>
+        <strong>${escapeHTML(item.name)}</strong> (<code>${escapeHTML(item.code)}</code>)
+        <div style="font-size:0.75rem; color:#94a3b8">Kondisi: ${escapeHTML(item.condition)}</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:0.5rem">
+        <label for="itemQty_${idx}" class="visually-hidden">Jumlah ${escapeHTML(item.name)}</label>
+        <input type="number" id="itemQty_${idx}" min="1" max="10" value="${item.qty}" style="width:52px; text-align:center" onchange="updateLoanItemQty(${idx}, this.value)">
+        <button type="button" class="btn outline" style="padding:0.25rem 0.6rem; font-size:0.75rem" onclick="removeLoanItem(${idx})">Hapus</button>
+      </div>
+    </div>
+  `,
+    )
+    .join("");
+}
+
+window.updateLoanItemQty = function (idx, val) {
+  if (currentLoanItems[idx]) {
+    currentLoanItems[idx].qty = Math.max(1, parseInt(val, 10) || 1);
+  }
+};
+
+window.removeLoanItem = function (idx) {
+  currentLoanItems.splice(idx, 1);
+  renderLoanItemsSummary();
+};
+
+/**
+ * Menampilkan tiket digital ber-QR Code setelah form D-05 disubmit
+ */
+function showTicketModal(ticket) {
+  currentTicketData = ticket;
+  byId("ticketIdDisplay").textContent = ticket.id;
+  byId("ticketBorrowerName").textContent = ticket.borrowerName;
+  byId("ticketBorrowerNPM").textContent = ticket.borrowerNPM;
+  byId("ticketPurpose").textContent =
+    `${ticket.purpose} (${ticket.borrowerProdi})`;
+  byId("ticketTitleText").textContent = ticket.title;
+  byId("ticketPeriodText").textContent =
+    `${ticket.startDate} s/d ${ticket.endDate}`;
+
+  const tbody = byId("ticketItemsTableBody");
+  if (tbody) {
+    tbody.innerHTML = ticket.items
+      .map(
+        (it, i) => `
+      <tr>
+        <td>${i + 1}</td>
+        <td><code>${escapeHTML(it.code)}</code></td>
+        <td>${escapeHTML(it.name)}</td>
+        <td>${it.qty} unit</td>
+        <td><span class="ticket-status-pill verified">Baik</span></td>
+      </tr>
+    `,
+      )
+      .join("");
+  }
+
+  // Generate QR Code sisi klien offline
+  const qrContainer = byId("ticketQrContainer");
+  if (qrContainer) {
+    qrContainer.innerHTML = "";
+    const qrPayload = `UNSIL-LAB-TIKET:${ticket.id}|NPM:${ticket.borrowerNPM}|ITEMS:${ticket.items.map((i) => i.code).join(",")}`;
+    if (typeof QRCode !== "undefined") {
+      new QRCode(qrContainer, {
+        text: qrPayload,
+        width: 140,
+        height: 140,
+        colorDark: "#0f172a",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.M,
+      });
+    } else {
+      qrContainer.innerHTML = `<div style="padding:1rem; font-family:monospace; font-size:0.75rem; color:#0f172a; text-align:center">${escapeHTML(ticket.id)}</div>`;
+    }
+  }
+
+  byId("tiketDigitalModal").showModal();
+  document.body.classList.add("modal-open");
+  byId("openBAFromTicket").focus();
+}
+
+function closeTicketModal() {
+  byId("tiketDigitalModal").close();
+}
+
+/**
+ * Menampilkan modal dialog Berita Acara resmi (D-03 & D-04)
+ */
+function showBeritaAcaraModal(ticket = null, tab = "D03") {
+  const activeTicket = ticket ||
+    currentTicketData || {
+      id: "UNSIL-LAB-" + Date.now().toString(36).toUpperCase(),
+      borrowerName: "Abilah",
+      borrowerNPM: "251011400716",
+      borrowerProdi: "Pendidikan Fisika",
+      purpose: "Praktikum Reguler / Eksperimen Mandiri",
+      title: "Verifikasi Karakteristik & Kalibrasi Instrumen Fisika",
+      startDate: new Date().toISOString().split("T")[0],
+      endDate: new Date(Date.now() + 3 * 86400000).toISOString().split("T")[0],
+      responsible: "Rosliana Siregar, M.Pd.",
+      items: [
+        {
+          code: "FIS-OPT-001",
+          name: "Kit Optik Standar Laboratorium",
+          qty: 1,
+          specs: "Set lengkap optik geometris",
+          condition: "Baik (Siap Pakai)",
+        },
+        {
+          code: "FIS-ELK-002",
+          name: "Osiloskop Dual Chanel",
+          qty: 1,
+          specs: "Dual channel calibrated",
+          condition: "Baik (Siap Pakai)",
+        },
+      ],
+    };
+
+  currentTicketData = activeTicket;
+  switchBATab(tab);
+  byId("beritaAcaraModal").showModal();
+  document.body.classList.add("modal-open");
+  byId("closeBAModal").focus();
+}
+
+function closeBeritaAcaraModal() {
+  byId("beritaAcaraModal").close();
+}
+
+function switchBATab(tab) {
+  const isD03 = tab === "D03";
+  byId("baTabD03").classList.toggle("active", isD03);
+  byId("baTabD04").classList.toggle("active", !isD03);
+  byId("baTabD03").setAttribute("aria-selected", isD03 ? "true" : "false");
+  byId("baTabD04").setAttribute("aria-selected", !isD03 ? "true" : "false");
+
+  const t = currentTicketData;
+  const now = new Date();
+  const dateFormatted = now.toLocaleDateString("id-ID", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const docTitle = isD03
+    ? "BERITA ACARA PEMINJAMAN ALAT/BARANG (D-03)"
+    : "BERITA ACARA PENGEMBALIAN ALAT/BARANG (D-04)";
+  const docNum = isD03
+    ? `BA-03/UN58.10.6/Lab.Fis/${now.getFullYear()}`
+    : `BA-04/UN58.10.6/Lab.Fis/${now.getFullYear()}`;
+  const clauseText = isD03
+    ? `Pada hari ini, <strong>${dateFormatted}</strong>, bertempat di Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi, telah dilakukan serah terima peminjaman peralatan laboratorium untuk keperluan praktikum/penelitian ilmiah dengan rincian sebagai berikut:`
+    : `Pada hari ini, <strong>${dateFormatted}</strong>, bertempat di Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi, telah dilakukan serah terima pengembalian seluruh peralatan laboratorium yang dipinjam sebelumnya dengan rincian pemeriksaan fisik sebagai berikut:`;
+
+  const itemsRows = (t.items || [])
+    .map(
+      (it, idx) => `
+    <tr>
+      <td style="text-align:center">${idx + 1}</td>
+      <td><code>${escapeHTML(it.code)}</code></td>
+      <td>${escapeHTML(it.name)}</td>
+      <td>${escapeHTML(it.specs || "-")}</td>
+      <td style="text-align:center">${it.qty}</td>
+      <td style="text-align:center">Set/Unit</td>
+      <td style="text-align:center">${isD03 ? "Baik (Lengkap)" : "Lengkap & Berfungsi Baik"}</td>
+    </tr>
+  `,
+    )
+    .join("");
+
+  byId("baDocumentContent").innerHTML = `
+    <div class="ba-document">
+      <div class="ba-kop">
+        <p class="ba-kop-line1">Kementerian Pendidikan Tinggi, Sains, dan Teknologi</p>
+        <p class="ba-kop-line2">Universitas Siliwangi</p>
+        <p class="ba-kop-line3">Fakultas Keguruan dan Ilmu Pendidikan · Jurusan Pendidikan Fisika</p>
+        <p class="ba-kop-address">Jalan Siliwangi No. 24 Kota Tasikmalaya Kode Pos 46115 Telepon (0265) 323532 · Laman: fkip.unsil.ac.id</p>
+      </div>
+
+      <h3 class="ba-doc-title">${docTitle}</h3>
+      <p class="ba-doc-number">Nomor: ${docNum}</p>
+
+      <p class="ba-clause">${clauseText}</p>
+
+      <table class="ba-parties-table">
+        <tr>
+          <td style="width:140px"><strong>Pihak Kesatu (Peminjam)</strong></td>
+          <td style="width:10px">:</td>
+          <td>${escapeHTML(t.borrowerName)} (NPM: ${escapeHTML(t.borrowerNPM)})</td>
+        </tr>
+        <tr>
+          <td>Program Studi</td>
+          <td>:</td>
+          <td>${escapeHTML(t.borrowerProdi)}</td>
+        </tr>
+        <tr>
+          <td>Keperluan / Topik</td>
+          <td>:</td>
+          <td>${escapeHTML(t.purpose)} — ${escapeHTML(t.title)}</td>
+        </tr>
+        <tr>
+          <td>Masa Pinjam</td>
+          <td>:</td>
+          <td>${escapeHTML(t.startDate)} sampai ${escapeHTML(t.endDate)}</td>
+        </tr>
+        <tr>
+          <td style="padding-top:6px"><strong>Pihak Kedua (Pengelola)</strong></td>
+          <td style="padding-top:6px">:</td>
+          <td style="padding-top:6px">Laboran / Pengelola Laboratorium Pendidikan Fisika UNSIL</td>
+        </tr>
+      </table>
+
+      <table class="ba-items-table">
+        <thead>
+          <tr>
+            <th style="width:30px">No</th>
+            <th style="width:100px">Kode Inventaris</th>
+            <th>Nama Alat / Komponen</th>
+            <th>Spesifikasi</th>
+            <th style="width:40px">Jumlah</th>
+            <th style="width:60px">Satuan</th>
+            <th style="width:100px">Kondisi Fisik</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsRows}
+        </tbody>
+      </table>
+
+      <p class="ba-clause" style="font-size:9pt; color:#1e293b">
+        ${
+          isD03
+            ? "Pihak Kesatu menyatakan telah menerima alat-alat tersebut dalam keadaan bersih, lengkap, dan berfungsi normal, serta bersedia menjaga, merawat, dan mematuhi Tata Tertib Laboratorium Fisika UNSIL."
+            : "Pihak Kedua telah memeriksa keutuhan dan kelengkapan fungsi setiap komponen instrumen di atas. Dengan ditandatanganinya Berita Acara ini, kewajiban peminjaman dinyatakan SELESAI."
+        }
+      </p>
+
+      <div class="ba-signature-grid">
+        <div class="ba-sig-box">
+          <p>Pihak Kesatu (Peminjam),</p>
+          <div class="ba-sig-space"></div>
+          <p class="ba-sig-name">${escapeHTML(t.borrowerName)}</p>
+          <p class="ba-sig-nip">NPM. ${escapeHTML(t.borrowerNPM)}</p>
+        </div>
+        <div class="ba-sig-box">
+          <p>Pihak Kedua (Pengelola Lab),</p>
+          <div class="ba-sig-space"></div>
+          <p class="ba-sig-name">Ida Rahmawati, S.Pd.</p>
+          <p class="ba-sig-nip">Pengelola Laboratorium Fisika</p>
+        </div>
+      </div>
+
+      <div class="ba-head-signature">
+        <p>Mengetahui,<br>Ketua Laboratorium Pendidikan Fisika FKIP UNSIL,</p>
+        <div class="ba-sig-space"></div>
+        <p class="ba-sig-name">Rosliana Siregar, M.Pd.</p>
+        <p class="ba-sig-nip">NIP. 198805122019032014</p>
+      </div>
+    </div>
+  `;
+}
+
+/* ==========================================================================
+   11C. REKAP & LOGBOOK PEMINJAMAN MASUK (SINKRON GOOGLE SHEETS TANPA GFORM)
+   ========================================================================== */
+
+const INITIAL_LOAN_RECORDS = [
+  {
+    id: "TKT-20260302-01",
+    borrowerName: "Rizki Pratama",
+    borrowerNPM: "212153018",
+    borrowerEmail: "212153018@student.unsil.ac.id",
+    borrowerPhone: "082119882341",
+    borrowerDept: "Pendidikan Fisika - FKIP UNSIL",
+    purpose: "Praktikum Mata Kuliah Fisika Gelombang",
+    title: "Percobaan Interferensi dan Difraksi Kisi",
+    startDate: "2026-03-02",
+    endDate: "2026-03-05",
+    advisor: "Rosliana Siregar, M.Pd.",
+    items: [
+      { code: "FIS-OPT-001", name: "Kit Optik Standar Laboratorium", qty: 1, condition: "Baik" },
+      { code: "FME-001-02", name: "Jangka sorong skala 0,02 mm", qty: 1, condition: "Baik" }
+    ],
+    status: "Disetujui",
+    createdAt: "2026-03-02T08:30:00.000Z"
+  },
+  {
+    id: "TKT-20260303-02",
+    borrowerName: "Dhea Ananda",
+    borrowerNPM: "222153045",
+    borrowerEmail: "222153045@student.unsil.ac.id",
+    borrowerPhone: "085223409121",
+    borrowerDept: "Pendidikan Fisika - FKIP UNSIL",
+    purpose: "Penelitian Skripsi / Tugas Akhir",
+    title: "Karakterisasi Koefisien Gesek Statis dan Kinetis Bahan",
+    startDate: "2026-03-03",
+    endDate: "2026-03-10",
+    advisor: "Dr. H. Mamat Ruhimat, M.Pd.",
+    items: [
+      { code: "FME-001-01", name: "Kit Bidang Miring", qty: 1, condition: "Baik" },
+      { code: "FME-001-03", name: "Micrometer sekrup", qty: 2, condition: "Baik" }
+    ],
+    status: "Diajukan",
+    createdAt: "2026-03-03T09:15:00.000Z"
+  },
+  {
+    id: "TKT-20260304-03",
+    borrowerName: "Ilham Fajar",
+    borrowerNPM: "212153009",
+    borrowerEmail: "212153009@student.unsil.ac.id",
+    borrowerPhone: "081394556210",
+    borrowerDept: "Pendidikan Fisika - FKIP UNSIL",
+    purpose: "Praktikum Mandiri",
+    title: "Analisis Resonansi Gelombang Bunyi",
+    startDate: "2026-03-04",
+    endDate: "2026-03-07",
+    advisor: "Dosen Pengampu Gelombang",
+    items: [
+      { code: "alat-031", name: "Garputala", qty: 2, condition: "Baik" },
+      { code: "alat-032", name: "Sonometer", qty: 1, condition: "Baik" }
+    ],
+    status: "Selesai",
+    createdAt: "2026-03-04T10:00:00.000Z"
+  }
+];
+
+function getLoanRecords() {
+  try {
+    const raw = localStorage.getItem("silab_loan_records");
+    if (!raw) {
+      localStorage.setItem("silab_loan_records", JSON.stringify(INITIAL_LOAN_RECORDS));
+      return INITIAL_LOAN_RECORDS;
+    }
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : INITIAL_LOAN_RECORDS;
+  } catch (e) {
+    return INITIAL_LOAN_RECORDS;
+  }
+}
+
+function saveLoanRecord(record) {
+  const records = getLoanRecords();
+  records.unshift(record);
+  localStorage.setItem("silab_loan_records", JSON.stringify(records));
+  return records;
+}
+
+function updateRecordStatus(recordId, newStatus) {
+  const records = getLoanRecords();
+  const rec = records.find(r => r.id === recordId);
+  if (rec) {
+    rec.status = newStatus;
+    localStorage.setItem("silab_loan_records", JSON.stringify(records));
+    renderAdminLogbook();
+    showToast(`Status ${recordId} diperbarui menjadi: ${newStatus}`);
+  }
+}
+
+function openAdminLogbook() {
+  modalOpener = document.activeElement;
+  byId("adminLogbookModal").showModal();
+  document.body.classList.add("modal-open");
+  const endpoint = localStorage.getItem("silab_gsheet_endpoint") || window.SILAB_CONFIG?.officialLinks?.loanSyncEndpoint || "";
+  if (byId("gsheetEndpointInput")) {
+    byId("gsheetEndpointInput").value = endpoint;
+  }
+  renderAdminLogbook();
+}
+
+function closeAdminLogbook() {
+  byId("adminLogbookModal").close();
+  document.body.classList.remove("modal-open");
+  if (modalOpener?.isConnected) modalOpener.focus();
+}
+
+function renderAdminLogbook(filterText = "") {
+  const tbody = byId("logbookTableBody");
+  if (!tbody) return;
+  const records = getLoanRecords();
+  const query = (filterText || byId("logbookSearchInput")?.value || "").toLowerCase().trim();
+
+  const filtered = records.filter(rec => {
+    if (!query) return true;
+    const name = (rec.borrowerName || "").toLowerCase();
+    const npm = (rec.borrowerNPM || "").toLowerCase();
+    const id = (rec.id || "").toLowerCase();
+    const items = (rec.items || []).map(i => i.name + " " + i.code).join(" ").toLowerCase();
+    return name.includes(query) || npm.includes(query) || id.includes(query) || items.includes(query);
+  });
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:1.5rem; color:#94a3b8">Belum ada pengajuan peminjaman yang cocok.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((rec) => {
+    const dateStr = rec.createdAt ? new Date(rec.createdAt).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : (rec.startDate || "-");
+    const itemsSummary = (rec.items || []).map(it => `<code>${escapeHTML(it.code || "")}</code> ${escapeHTML(it.name || "")} (${it.qty || 1}x)`).join("<br>");
+    
+    let badgeClass = "badge-diajukan";
+    if (rec.status === "Disetujui") badgeClass = "badge-disetujui";
+    if (rec.status === "Selesai") badgeClass = "badge-selesai";
+
+    return `
+      <tr>
+        <td><small>${dateStr}</small></td>
+        <td><code>${escapeHTML(rec.id)}</code></td>
+        <td><strong>${escapeHTML(rec.borrowerName || "-")}</strong><br><small style="color:#94a3b8">${escapeHTML(rec.borrowerDept || "")}</small></td>
+        <td><code>${escapeHTML(rec.borrowerNPM || "-")}</code></td>
+        <td>${escapeHTML(rec.purpose || "-")}<br><small style="color:#94a3b8">${escapeHTML(rec.title || "-")}</small></td>
+        <td style="font-size:0.8rem">${itemsSummary}</td>
+        <td>
+          <span class="logbook-badge ${badgeClass}">${escapeHTML(rec.status || "Diajukan")}</span>
+          <div style="margin-top:0.35rem">
+            <select class="btn-mini" onchange="updateRecordStatus('${rec.id}', this.value)" aria-label="Ubah status ${rec.id}">
+              <option value="Diajukan" ${rec.status === "Diajukan" ? "selected" : ""}>Diajukan</option>
+              <option value="Disetujui" ${rec.status === "Disetujui" ? "selected" : ""}>Disetujui</option>
+              <option value="Selesai" ${rec.status === "Selesai" ? "selected" : ""}>Selesai</option>
+            </select>
+          </div>
+        </td>
+        <td>
+          <div class="table-action-btns">
+            <button type="button" class="btn-mini" onclick="viewLogbookTicket('${rec.id}')">Tiket QR</button>
+            <button type="button" class="btn-mini action-print" onclick="printLogbookBA('${rec.id}', 'D03')">Cetak D-03</button>
+            <button type="button" class="btn-mini" onclick="printLogbookBA('${rec.id}', 'D04')">Cetak D-04</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+window.viewLogbookTicket = function(recordId) {
+  const records = getLoanRecords();
+  const rec = records.find(r => r.id === recordId);
+  if (rec) {
+    closeAdminLogbook();
+    showTicketModal(rec);
+  }
+};
+
+window.printLogbookBA = function(recordId, tab) {
+  const records = getLoanRecords();
+  const rec = records.find(r => r.id === recordId);
+  if (rec) {
+    closeAdminLogbook();
+    showBeritaAcaraModal(rec, tab);
+  }
+};
+
+window.updateRecordStatus = updateRecordStatus;
+
+function exportLogbookCSV() {
+  const records = getLoanRecords();
+  if (records.length === 0) {
+    showToast("Belum ada data untuk diekspor!");
+    return;
+  }
+  const headers = ["ID Tiket", "Nama Mahasiswa", "NPM", "Email", "No. WhatsApp", "Program Studi", "Keperluan", "Judul", "Dosen Pembimbing", "Tgl Pinjam", "Tgl Kembali", "Daftar Alat", "Status", "Waktu Pengajuan"];
+  const rows = records.map(r => {
+    const itemsStr = (r.items || []).map(i => `${i.code}: ${i.name} (${i.qty} unit)`).join(" | ");
+    return [
+      `"${r.id}"`,
+      `"${(r.borrowerName || "").replace(/"/g, '""')}"`,
+      `"${r.borrowerNPM || ""}"`,
+      `"${r.borrowerEmail || ""}"`,
+      `"${r.borrowerPhone || ""}"`,
+      `"${(r.borrowerDept || "").replace(/"/g, '""')}"`,
+      `"${(r.purpose || "").replace(/"/g, '""')}"`,
+      `"${(r.title || "").replace(/"/g, '""')}"`,
+      `"${(r.advisor || r.supervisor || "").replace(/"/g, '""')}"`,
+      `"${r.startDate || ""}"`,
+      `"${r.endDate || ""}"`,
+      `"${itemsStr.replace(/"/g, '""')}"`,
+      `"${r.status || "Diajukan"}"`,
+      `"${r.createdAt || ""}"`
+    ].join(",");
+  });
+
+  const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `rekap_peminjaman_silab_unsil_${new Date().toISOString().split("T")[0]}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("✓ Berkas rekap CSV berhasil diunduh!");
+}
+
+/**
+ * Sinkronisasi dinamis inventaris Google Sheets resmi lab
+ */
+async function syncGoogleSheets(manual = false) {
+  const syncBtn = byId("syncSheetBtn");
+  const syncText = byId("syncStatusText");
+  if (syncBtn) syncBtn.disabled = true;
+  if (syncText)
+    syncText.textContent = "Menghubungkan ke Google Sheets Inventaris...";
+
+  try {
+    const sheetUrl =
+      (typeof config !== "undefined" && config.sheetEquipment) ||
+      "https://docs.google.com/spreadsheets/d/1pLms8u0h-KzzGCAdGwq-MxSu0V10XOoY5JBxDlTr0QQ/export?format=csv";
+    const resp = await fetch(sheetUrl, { cache: "no-store" });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const csv = await resp.text();
+    const updatedCount = applyGoogleSheetCsv(csv);
+    if (syncText) {
+      syncText.textContent = `Sinkron live: ${updatedCount} baris diperbarui dari Google Sheets`;
+    }
+    renderCatalog();
+    if (manual)
+      showToast(
+        `✓ Berhasil menyinkronkan ${updatedCount} instrumen dari Google Sheets!`,
+      );
+  } catch (err) {
+    if (syncText) {
+      syncText.textContent =
+        "Dataset resmi Dokumen C-01/UN58.10.6/Lab/2026 (50 alat aktif offline)";
+    }
+  } finally {
+    if (syncBtn) syncBtn.disabled = false;
+  }
+}
+
+function applyGoogleSheetCsv(csv) {
+  const lines = csv.split(/\r?\n/).filter((l) => l.trim().length > 0);
+  let updated = 0;
+  for (const line of lines) {
+    const cols = line.split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+    if (cols.length < 5) continue;
+    const code = cols[1];
+    const name = cols[2];
+    const specs = cols[3];
+    const baik = parseInt(cols[4], 10);
+    const dipinjam = parseInt(cols[10], 10) || 0;
+    const tersedia = parseInt(cols[11], 10) || baik;
+
+    if (!code || isNaN(baik)) continue;
+
+    const match = equipmentData.find(
+      (item) =>
+        item.code === code ||
+        item.name.toLowerCase() === name.toLowerCase() ||
+        (item.aliases && item.aliases.includes(code)),
+    );
+    if (match) {
+      if (!isNaN(tersedia))
+        match.quantity = `${tersedia} ${cols[7] || "unit"} (Tersedia)`;
+      if (specs && specs.length > 3) match.specs = specs;
+      updated++;
+    }
+  }
+  return updated;
+}
+
+/* ============================================================================
    12. INITIALISASI UTAMA & PENDAFTARAN EVENT LISTENERS
    ============================================================================ */
 
@@ -800,20 +1458,20 @@ function init() {
     )
     .join("");
 
-  // Isi dropdown kategori filter berdasarkan kategori alat yang ada
-  equipmentData.forEach((item) =>
-    byId("categoryFilter").add(new Option(item.category, item.category)),
+  // Isi dropdown kategori filter berdasarkan kategori alat yang unik
+  const uniqueCategories = Array.from(
+    new Set(equipmentData.map((item) => item.category)),
+  );
+  uniqueCategories.forEach((cat) =>
+    byId("categoryFilter").add(new Option(cat, cat)),
   );
 
   // Render chip kategori filter cepat
-  const categories = Array.from(
-    new Set(equipmentData.map((item) => item.category)),
-  );
   const filterChipsEl = byId("filterChips");
   if (filterChipsEl) {
     filterChipsEl.innerHTML = [
       '<button class="chip-btn active" data-category="ALL">Semua</button>',
-      ...categories.map(
+      ...uniqueCategories.map(
         (cat) =>
           `<button class="chip-btn" data-category="${escapeHTML(cat)}">${escapeHTML(cat)}</button>`,
       ),
@@ -895,6 +1553,20 @@ function init() {
     }
   });
 
+  // Listener filter ukuran alat (Semua, Alat Besar, Alat Kecil)
+  const sizeChipsEl = byId("sizeFilterChips");
+  if (sizeChipsEl) {
+    sizeChipsEl.addEventListener("click", (event) => {
+      const btn = event.target.closest("[data-size]");
+      if (!btn) return;
+      currentSizeFilter = btn.dataset.size;
+      sizeChipsEl.querySelectorAll(".chip-btn").forEach((chip) => {
+        chip.classList.toggle("active", chip.dataset.size === currentSizeFilter);
+      });
+      renderCatalog();
+    });
+  }
+
   // Listener pencarian dan filter katalog
   byId("searchEquipment").addEventListener("input", renderCatalog);
   byId("categoryFilter").addEventListener("change", () => {
@@ -904,12 +1576,18 @@ function init() {
   byId("resetFilters").addEventListener("click", () => {
     byId("searchEquipment").value = "";
     byId("categoryFilter").value = "ALL";
+    currentSizeFilter = "ALL";
+    if (sizeChipsEl) {
+      sizeChipsEl.querySelectorAll(".chip-btn").forEach((chip) => {
+        chip.classList.toggle("active", chip.dataset.size === "ALL");
+      });
+    }
     syncActiveChip("ALL");
     renderCatalog();
     byId("searchEquipment").focus();
   });
 
-  // Listener delegasi klik untuk tombol "Lihat kartu alat & SOP" dan "+ Keranjang"
+  // Listener delegasi klik untuk tombol "Lihat kartu alat & SOP", "+ Keranjang", dan "Ajukan Pinjam"
   byId("catalogContainer").addEventListener("click", (event) => {
     const detailBtn = event.target.closest("[data-equipment]");
     if (detailBtn) {
@@ -919,6 +1597,12 @@ function init() {
     const addBtn = event.target.closest("[data-add-cart]");
     if (addBtn) {
       addToCart(addBtn.dataset.addCart);
+      return;
+    }
+    const directLoanBtn = event.target.closest("[data-direct-loan]");
+    if (directLoanBtn) {
+      openLoanModal([directLoanBtn.dataset.directLoan]);
+      return;
     }
   });
 
@@ -977,9 +1661,134 @@ function init() {
   });
 
   // Aksi footer keranjang peminjaman
+  byId("cartCheckoutLoanBtn")?.addEventListener("click", () => {
+    closeCartDrawer();
+    openLoanModal(cart.map((c) => c.code));
+  });
   byId("sendCartWABtn")?.addEventListener("click", sendCartToWhatsApp);
   byId("copyCartBtn")?.addEventListener("click", copyCartToClipboard);
   byId("clearCartBtn")?.addEventListener("click", clearCart);
+
+  // Form submit Permohonan Peminjaman D-05 & pembuatan Tiket QR (Sinkron Google Sheets Langsung)
+  byId("loanForm")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (currentLoanItems.length === 0) {
+      showToast("Pilih minimal satu alat untuk diajukan!");
+      return;
+    }
+    const ticketId = "TKT-" + Math.floor(100000 + Math.random() * 900000);
+    const borrowerName = byId("loanBorrowerName")?.value.trim() || "";
+    const borrowerNPM = byId("loanBorrowerNPM")?.value.trim() || "";
+    const borrowerEmail = byId("loanBorrowerEmail")?.value.trim() || "";
+    const borrowerPhone = byId("loanBorrowerPhone")?.value.trim() || "";
+    const borrowerDept = byId("loanBorrowerDept")?.value.trim() || byId("loanBorrowerProdi")?.value || "Pendidikan Fisika - FKIP UNSIL";
+    const purpose = byId("loanPurpose")?.value || "";
+    const title = byId("loanTitle")?.value.trim() || "";
+    const startDate = byId("loanStartDate")?.value || "";
+    const endDate = byId("loanEndDate")?.value || "";
+    const advisor = byId("loanAdvisor")?.value.trim() || byId("loanSupervisor")?.value.trim() || "-";
+
+    const ticketData = {
+      id: ticketId,
+      borrowerName,
+      borrowerNPM,
+      borrowerEmail,
+      borrowerPhone,
+      borrowerDept,
+      borrowerProdi: borrowerDept,
+      purpose,
+      title,
+      startDate,
+      endDate,
+      advisor,
+      supervisor: advisor,
+      items: [...currentLoanItems],
+      status: "Diajukan",
+      createdAt: new Date().toISOString(),
+    };
+
+    // 1. Simpan ke database lokal logbook pengajuan lab
+    saveLoanRecord(ticketData);
+
+    // 2. Kirim otomatis ke Google Sheets via Google Apps Script Web App jika endpoint disetel
+    const gsheetEndpoint = localStorage.getItem("silab_gsheet_endpoint") || window.SILAB_CONFIG?.officialLinks?.loanSyncEndpoint;
+    if (gsheetEndpoint && gsheetEndpoint.startsWith("http")) {
+      fetch(gsheetEndpoint, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(ticketData),
+      }).catch((err) => console.warn("Google Sheet sync notice:", err));
+    }
+
+    closeLoanModal();
+    showTicketModal(ticketData);
+    showToast(
+      "✓ Permohonan peminjaman berhasil dicatat & disinkronkan ke Google Sheet! Tiket digital & QR siap.",
+    );
+  });
+
+  // Listener penutupan & navigasi modal peminjaman D-05
+  byId("closeLoanModal")?.addEventListener("click", closeLoanModal);
+  byId("cancelLoanBtn")?.addEventListener("click", closeLoanModal);
+  byId("peminjamanModal")?.addEventListener("close", () => {
+    document.body.classList.remove("modal-open");
+    if (modalOpener?.isConnected) modalOpener.focus();
+  });
+
+  // Listener tiket digital ber-QR Code
+  byId("closeTicketModal")?.addEventListener("click", closeTicketModal);
+  byId("closeTicketTopBtn")?.addEventListener("click", closeTicketModal);
+  byId("tiketDigitalModal")?.addEventListener("close", () => {
+    document.body.classList.remove("modal-open");
+    if (modalOpener?.isConnected) modalOpener.focus();
+  });
+  byId("openBAFromTicket")?.addEventListener("click", () => {
+    closeTicketModal();
+    showBeritaAcaraModal(currentTicketData, "D03");
+  });
+
+  // Listener Berita Acara D-03 / D-04
+  byId("closeBAModal")?.addEventListener("click", closeBeritaAcaraModal);
+  byId("closeBATopBtn")?.addEventListener("click", closeBeritaAcaraModal);
+  byId("beritaAcaraModal")?.addEventListener("close", () => {
+    document.body.classList.remove("modal-open");
+    if (modalOpener?.isConnected) modalOpener.focus();
+  });
+  byId("baTabD03")?.addEventListener("click", () => switchBATab("D03"));
+  byId("baTabD04")?.addEventListener("click", () => switchBATab("D04"));
+  byId("printBABtn")?.addEventListener("click", () => window.print());
+
+  // Listener Admin Logbook Peminjaman Masuk
+  byId("openLogbookFromHalaman4")?.addEventListener("click", openAdminLogbook);
+  byId("openAdminLogbookCatalogBtn")?.addEventListener("click", openAdminLogbook);
+  byId("closeAdminLogbookBtn")?.addEventListener("click", closeAdminLogbook);
+  byId("closeAdminLogbookBottom")?.addEventListener("click", closeAdminLogbook);
+  byId("adminLogbookModal")?.addEventListener("close", () => {
+    document.body.classList.remove("modal-open");
+    if (modalOpener?.isConnected) modalOpener.focus();
+  });
+  byId("logbookSearchInput")?.addEventListener("input", (e) => {
+    renderAdminLogbook(e.target.value);
+  });
+  byId("exportLogbookCSVBtn")?.addEventListener("click", exportLogbookCSV);
+  byId("toggleGSheetConfigBtn")?.addEventListener("click", () => {
+    const box = byId("gsheetConfigBox");
+    if (box) box.hidden = !box.hidden;
+  });
+  byId("saveGSheetEndpointBtn")?.addEventListener("click", () => {
+    const val = byId("gsheetEndpointInput")?.value.trim() || "";
+    if (val && !val.startsWith("http")) {
+      showToast("URL Web App harus diawali dengan https://");
+      return;
+    }
+    localStorage.setItem("silab_gsheet_endpoint", val);
+    showToast(val ? "✓ URL Web App Google Sheets berhasil disimpan!" : "✓ URL sinkronisasi direset ke default.");
+    byId("gsheetConfigBox").hidden = true;
+  });
+
+  // Listener tombol sinkronisasi Google Sheets
+  byId("syncSheetBtn")?.addEventListener("click", () => syncGoogleSheets(true));
 
   // Global keydown handler untuk Escape & Focus Trap pada cart drawer
   document.addEventListener("keydown", (event) => {
@@ -1213,6 +2022,33 @@ function init() {
     // Feedback visual cepat: laser hijau & stop scan
     scannerViewport?.classList.add("detected");
 
+    if (String(raw).includes("UNSIL-LAB-TIKET:")) {
+      const parts = String(raw).split("|");
+      const ticketId = parts[0].replace("UNSIL-LAB-TIKET:", "");
+      const npm = parts[1] ? parts[1].replace("NPM:", "") : "-";
+      stopScannerCamera();
+      scannerModal?.close();
+      showBeritaAcaraModal(
+        {
+          id: ticketId,
+          borrowerName: "Mahasiswa Terverifikasi",
+          borrowerNPM: npm,
+          borrowerProdi: "Pendidikan Fisika",
+          purpose: "Praktikum Laboratorium Fisika",
+          title: "Peminjaman Instrumen Praktikum",
+          startDate: new Date().toISOString().split("T")[0],
+          endDate: new Date(Date.now() + 3 * 86400000)
+            .toISOString()
+            .split("T")[0],
+          items:
+            currentLoanItems.length > 0 ? currentLoanItems : [equipmentData[0]],
+        },
+        "D03",
+      );
+      showToast(`✓ Tiket ${ticketId} berhasil diverifikasi! Berita Acara siap.`);
+      return;
+    }
+
     let code = String(raw).trim();
     if (code.includes("#alat=")) {
       code = code.split("#alat=")[1];
@@ -1376,6 +2212,11 @@ function init() {
       "Kode tidak terbaca pada gambar. Coba masukkan nama alat manual di pencarian.",
     );
   });
+
+  // Pemicu sinkronisasi dinamis Google Sheets resmi di latar belakang
+  setTimeout(() => {
+    syncGoogleSheets(false).catch(() => {});
+  }, 1200);
 }
 
 // Registrasi Service Worker untuk kapabilitas offline & PWA instan

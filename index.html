@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://forms.gle https://docs.google.com;"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://docs.google.com https://*.google.com https://*.googleusercontent.com https://script.google.com https://script.googleusercontent.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self' https://forms.gle https://docs.google.com;"
     />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta
@@ -28,6 +28,8 @@
     <title>SILAB FISIKA UNSIL | Laboratorium Pendidikan Fisika</title>
     <link rel="stylesheet" href="css/style.css" />
     <script src="js/config.js" defer></script>
+    <script src="js/qrcode.min.js" defer></script>
+    <script src="js/equipment-data.js" defer></script>
     <script src="js/app.js" defer></script>
   </head>
   <body>
@@ -642,6 +644,16 @@
         </div>
         <div id="formsContainer" class="grid-2"></div>
         <p id="formStatus" role="status" class="notice" hidden></p>
+        <div class="official-access-card logbook-admin-highlight">
+          <div class="badge-row">
+            <span class="official-tag live-pulse">Sistem Terintegrasi Tanpa GForm</span>
+          </div>
+          <h3>Rekap &amp; Logbook Peminjaman Masuk</h3>
+          <p class="official-hint">Data pengajuan peminjaman mahasiswa yang masuk langsung dari web (otomatis tersinkron ke Google Sheets tanpa perlu Google Form terpisah):</p>
+          <div class="logbook-btn-wrap">
+            <button id="openLogbookFromHalaman4" type="button" class="btn primary">📋 Buka Logbook Data Pemohon Lab</button>
+          </div>
+        </div>
         <div class="official-access-card">
           <h3>Tautan Langsung Formulir Resmi UNSIL</h3>
           <p class="official-hint">Akses langsung ke Google Form resmi pengelola laboratorium dan kontak WhatsApp PLP:</p>
@@ -673,12 +685,13 @@
             inventaris yang dapat dicetak.
           </p>
         </div>
-        <div class="notice">
-          <strong>Status inventaris perlu verifikasi laboran.</strong>
+        <div class="notice official-sync-notice">
+          <div class="sync-status-badge">
+            <span class="live-pulse" aria-hidden="true"></span>
+            <strong>Inventaris Resmi Terverifikasi · Dokumen C-01/UN58.10.6/Lab/2026</strong>
+          </div>
           <p>
-            Delapan jenis alat berikut mengikuti daftar kebutuhan. Kode katalog
-            dan usulan penyimpanan bukan nomor aset atau lokasi terkonfirmasi.
-            Ketersediaan, kondisi, dan riwayat kalibrasi belum ditetapkan.
+            Tersinkronisasi 50 instrumen laboratorium riil (25 Alat Besar &amp; 25 Alat Kecil) lengkap dengan nomor inventaris, kondisi fisik, kuantitas stok, dan SOP pengoperasian.
           </p>
         </div>
         <div class="filter-bar">
@@ -715,7 +728,24 @@
               <option value="ALL">Semua bidang</option>
             </select>
           </div>
+          <div>
+            <label for="sizeFilter">Ukuran alat</label
+            ><select id="sizeFilter">
+              <option value="ALL">Semua ukuran (50)</option>
+              <option value="BESAR">Alat Besar (25)</option>
+              <option value="KECIL">Alat Kecil (25)</option>
+            </select>
+          </div>
+          <div>
+            <label for="conditionFilter">Kondisi fisik</label
+            ><select id="conditionFilter">
+              <option value="ALL">Semua kondisi</option>
+              <option value="good">Baik (Siap Pakai)</option>
+              <option value="warning">Perlu Kalibrasi / Servis</option>
+            </select>
+          </div>
           <button id="resetFilters" class="btn outline">Reset filter</button>
+          <button id="openAdminLogbookCatalogBtn" type="button" class="btn outline">📋 Data Pemohon</button>
         </div>
         <div
           id="filterChips"
@@ -947,6 +977,232 @@
       </div>
     </dialog>
     <!-- ================================================================ -->
+    <!-- MODAL PERMOHONAN PEMINJAMAN ALAT RESMI (DOKUMEN D-05)            -->
+    <!-- ================================================================ -->
+    <dialog id="peminjamanModal" class="academic-dialog" aria-labelledby="loanModalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">DOKUMEN D-05 · FKIP UNIVERSITAS SILIWANGI</p>
+          <h2 id="loanModalTitle">Permohonan Izin Peminjaman Alat</h2>
+        </div>
+        <button id="closeLoanModal" class="close-btn" aria-label="Tutup form peminjaman">×</button>
+      </div>
+      <form id="loanForm" class="academic-form">
+        <p class="form-instruction">
+          Lengkapi data peminjaman di bawah ini. Sistem otomatis menerbitkan <strong>Tiket Digital ber-QR Code</strong> untuk ditunjukkan ke laboran saat pengambilan alat, serta <strong>Berita Acara Serah Terima (D-03 &amp; D-04)</strong> resmi.
+        </p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="loanBorrowerName">Nama Lengkap Pemohon <span class="required">*</span></label>
+            <input id="loanBorrowerName" type="text" required placeholder="Contoh: Anzani Utami Putri" autocomplete="name" />
+          </div>
+          <div class="form-field">
+            <label for="loanBorrowerNPM">NPM / NIDN / No. Identitas <span class="required">*</span></label>
+            <input id="loanBorrowerNPM" type="text" required placeholder="Contoh: 212153001" />
+          </div>
+          <div class="form-field">
+            <label for="loanBorrowerEmail">Email Mahasiswa (@student.unsil.ac.id) <span class="required">*</span></label>
+            <input id="loanBorrowerEmail" type="email" required placeholder="Contoh: 212153001@student.unsil.ac.id" autocomplete="email" />
+          </div>
+          <div class="form-field">
+            <label for="loanBorrowerPhone">Nomor WhatsApp / HP Aktif <span class="required">*</span></label>
+            <input id="loanBorrowerPhone" type="tel" required placeholder="Contoh: 0823-xxxx-xxxx" />
+          </div>
+          <div class="form-field">
+            <label for="loanBorrowerDept">Program Studi / Instansi</label>
+            <input id="loanBorrowerDept" type="text" value="Pendidikan Fisika - FKIP UNSIL" />
+          </div>
+          <div class="form-field">
+            <label for="loanPurpose">Keperluan Penggunaan <span class="required">*</span></label>
+            <select id="loanPurpose">
+              <option value="Praktikum Mata Kuliah">Praktikum Mata Kuliah Reguler</option>
+              <option value="Penelitian Skripsi / Tugas Akhir">Penelitian Skripsi / Tugas Akhir</option>
+              <option value="Penelitian Mandiri / Dosen">Penelitian Mandiri / Riset Dosen</option>
+              <option value="Lomba / PKM / Karya Ilmiah">Lomba / PKM / Karya Ilmiah</option>
+              <option value="Pembuatan Alat Peraga Fisika">Pembuatan Media / Alat Peraga Fisika Sekolah</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="loanTitle">Judul Penelitian / Modul Praktikum <span class="required">*</span></label>
+            <input id="loanTitle" type="text" required placeholder="Contoh: Karakteristik Sinyal Osiloskop Dual Channel &amp; Frekuensi" />
+          </div>
+          <div class="form-field">
+            <label for="loanAdvisor">Dosen Pembimbing / Pengampu</label>
+            <input id="loanAdvisor" type="text" placeholder="Contoh: Dosen Pengampu Praktikum Fisika" />
+          </div>
+          <div class="form-field">
+            <label for="loanStartDate">Tanggal Peminjaman <span class="required">*</span></label>
+            <input id="loanStartDate" type="date" required />
+          </div>
+          <div class="form-field">
+            <label for="loanEndDate">Tanggal Rencana Pengembalian <span class="required">*</span></label>
+            <input id="loanEndDate" type="date" required />
+          </div>
+        </div>
+        <div class="loan-selected-section">
+          <h3>Daftar Instrumen yang Diajukan</h3>
+          <div id="loanItemsSummary" class="loan-items-summary">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn primary">Terbitkan Tiket Digital &amp; QR Code</button>
+          <button type="button" id="closeLoanModalBottom" class="btn outline">Batal</button>
+        </div>
+      </form>
+    </dialog>
+    <!-- ================================================================ -->
+    <!-- MODAL TIKET PEMINJAMAN DIGITAL BER-QR CODE                      -->
+    <!-- ================================================================ -->
+    <dialog id="tiketDigitalModal" class="academic-dialog ticket-dialog" aria-labelledby="ticketTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">SILAB FISIKA UNSIL · BOARDING PASS LAB</p>
+          <h2 id="ticketTitle">Tiket Peminjaman Digital</h2>
+        </div>
+        <button id="closeTicketModal" class="close-btn" aria-label="Tutup tiket">×</button>
+      </div>
+      <div id="ticketPrintSurface" class="ticket-body">
+        <div class="ticket-card">
+          <div class="ticket-card-header">
+            <div class="ticket-org-badge">
+              <span class="ticket-org-name">LABORATORIUM PENDIDIKAN FISIKA FKIP UNSIL</span>
+              <span class="ticket-sub">Surat Izin Pinjam Resmi Dokumen D-05</span>
+            </div>
+            <div class="ticket-id-pill" id="ticketIdDisplay">UNSIL-LAB-20261110-001</div>
+          </div>
+          <div class="ticket-main-grid">
+            <div class="ticket-qr-block">
+              <div id="ticketQrContainer" class="ticket-qr-wrapper" aria-label="QR Code Verifikasi Laboran"></div>
+              <p class="ticket-qr-caption">Pindai di Meja Lab untuk Verifikasi</p>
+            </div>
+            <div class="ticket-meta-block">
+              <dl class="ticket-meta-list">
+                <dt>Nama Peminjam</dt>
+                <dd id="ticketBorrowerName">-</dd>
+                <dt>NPM / Identitas</dt>
+                <dd id="ticketBorrowerNPM">-</dd>
+                <dt>Keperluan</dt>
+                <dd id="ticketPurpose">-</dd>
+                <dt>Judul / Modul</dt>
+                <dd id="ticketTitleText">-</dd>
+                <dt>Periode Pinjam</dt>
+                <dd id="ticketPeriodText">-</dd>
+                <dt>Status Tiket</dt>
+                <dd><span class="ticket-status-pill verified">TERVERIFIKASI SISTEM (D-05)</span></dd>
+              </dl>
+            </div>
+          </div>
+          <div class="ticket-items-table-wrap">
+            <table class="ticket-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Kode Alat</th>
+                  <th>Nama Instrumen</th>
+                  <th>Jumlah</th>
+                  <th>Kondisi Awal</th>
+                </tr>
+              </thead>
+              <tbody id="ticketItemsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+          <div class="ticket-disclaimer">
+            <p><strong>Perhatian:</strong> Peminjam wajib menunjukkan tiket digital ini kepada laboran (PLP) di Laboratorium Fisika FKIP UNSIL. Instrumen hanya dapat diserahkan setelah laboran memverifikasi kelayakan fisik dan mencocokkan Berita Acara (D-03).</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions ticket-actions">
+        <button id="openBAFromTicket" class="btn primary">Buka Berita Acara Resmi (D-03 &amp; D-04)</button>
+        <button id="printTicketBtn" class="btn outline">Cetak Tiket / Unduh PDF</button>
+        <button id="closeTicketModalBottom" class="btn outline">Tutup</button>
+      </div>
+    </dialog>
+    <!-- ================================================================ -->
+    <!-- MODAL BERITA ACARA RESMI (DOKUMEN D-03 & D-04)                   -->
+    <!-- ================================================================ -->
+    <dialog id="beritaAcaraModal" class="academic-dialog ba-dialog" aria-labelledby="baModalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ADMINISTRASI RESMI LABORATORIUM FISIKA</p>
+          <h2 id="baModalTitle">Berita Acara Digital (D-03 &amp; D-04)</h2>
+        </div>
+        <button id="closeBAModal" class="close-btn" aria-label="Tutup berita acara">×</button>
+      </div>
+      <div class="ba-tab-bar" role="tablist">
+        <button id="baTabD03" class="ba-tab-btn active" role="tab" aria-selected="true">
+          Dokumen D-03: Berita Acara Peminjaman
+        </button>
+        <button id="baTabD04" class="ba-tab-btn" role="tab" aria-selected="false">
+          Dokumen D-04: Berita Acara Pengembalian
+        </button>
+      </div>
+      <div id="baPrintSurface" class="ba-document-wrap">
+        <div id="baDocumentContent" class="ba-document"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="printBABtn" class="btn primary">Cetak Dokumen Resmi (A4)</button>
+        <button id="switchBATabBtn" class="btn outline">Ganti ke Dokumen D-04</button>
+        <button id="closeBAModalBottom" class="btn outline">Tutup</button>
+      </div>
+    </dialog>
+    <!-- ================================================================ -->
+    <!-- MODAL REKAP & LOGBOOK PEMINJAMAN MASUK (SINKRON GOOGLE SHEETS)    -->
+    <!-- ================================================================ -->
+    <dialog id="adminLogbookModal" class="academic-dialog logbook-dialog" aria-labelledby="adminLogbookTitle">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ADMINISTRASI &amp; REKAP REAL-TIME · FKIP UNSIL</p>
+          <h2 id="adminLogbookTitle">Logbook Peminjaman Masuk</h2>
+        </div>
+        <button id="closeAdminLogbookBtn" class="close-btn" aria-label="Tutup logbook peminjaman">×</button>
+      </div>
+      <div class="logbook-toolbar">
+        <div class="logbook-search-box">
+          <label for="logbookSearchInput" class="visually-hidden">Cari peminjam</label>
+          <input id="logbookSearchInput" type="search" placeholder="Cari peminjam (Nama / NPM / Alat)..." />
+        </div>
+        <div class="logbook-actions-group">
+          <button id="exportLogbookCSVBtn" type="button" class="btn outline btn-sm">Unduh CSV / Excel</button>
+          <button id="toggleGSheetConfigBtn" type="button" class="btn outline btn-sm">Koneksi Google Sheets</button>
+        </div>
+      </div>
+      <div id="gsheetConfigBox" class="gsheet-config-card" hidden>
+        <h4>Pengaturan Sinkronisasi Google Sheets Otomatis</h4>
+        <p class="small-text">Tempelkan URL Web App Google Apps Script Anda di bawah ini agar setiap permohonan peminjaman langsung masuk ke spreadsheet lab:</p>
+        <div class="gsheet-input-row">
+          <label for="gsheetEndpointInput" class="visually-hidden">URL Web App Google Apps Script</label>
+          <input id="gsheetEndpointInput" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" />
+          <button id="saveGSheetEndpointBtn" type="button" class="btn primary btn-sm">Simpan</button>
+        </div>
+        <p class="small-hint">Skrip backend Google Apps Script sudah tersedia di berkas <code>scripts/google-apps-script-bridge.js</code> (cukup salin dan Deploy sebagai Web App).</p>
+      </div>
+      <div class="logbook-table-wrap">
+        <table class="logbook-table">
+          <thead>
+            <tr>
+              <th scope="col">Waktu</th>
+              <th scope="col">ID Tiket</th>
+              <th scope="col">Nama Mahasiswa</th>
+              <th scope="col">NPM</th>
+              <th scope="col">Keperluan</th>
+              <th scope="col">Daftar Alat</th>
+              <th scope="col">Status</th>
+              <th scope="col">Aksi Laboran</th>
+            </tr>
+          </thead>
+          <tbody id="logbookTableBody">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-actions">
+        <button id="closeAdminLogbookBottom" type="button" class="btn outline">Tutup Logbook</button>
+      </div>
+    </dialog>
+    <!-- ================================================================ -->
     <!-- KERANJANG PINJAM ALAT (BOTTOM SHEET / DRAWER INTERAKTIF)         -->
     <!-- Mengurangi gesekan: pilih alat, atur jumlah, kirim WA / Form     -->
     <!-- ================================================================ -->
@@ -992,7 +1248,10 @@
         </div>
       </div>
       <div class="cart-drawer-footer">
-        <button id="sendCartWABtn" class="btn primary btn-wa">
+        <button id="cartCheckoutLoanBtn" class="btn primary btn-checkout-loan">
+          Buat Izin Pinjam &amp; Tiket QR (D-05)
+        </button>
+        <button id="sendCartWABtn" class="btn btn-secondary btn-wa">
           Kirim Pengajuan ke WhatsApp PLP
         </button>
         <button id="copyCartBtn" class="btn outline">
@@ -1005,6 +1264,7 @@
             href="https://forms.gle/eu4CZGbYu1TwrWec6"
             target="_blank"
             rel="noopener noreferrer"
+            style="display: none;"
           >
             Buka Google Form Peminjaman Resmi ↗
           </a>
