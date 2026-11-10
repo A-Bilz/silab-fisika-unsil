@@ -6,6 +6,94 @@ Dibangun dengan prinsip arsitektur **Zero-Framework**: murni HTML5 semantik, CSS
 
 ---
 
+## 🌸 PANDUAN KHUSUS CIMOT: CARA EDIT WEB PAKE GOOGLE ANTIGRAVITY / AI
+
+Bagian ini dibuat khusus agar Cimot bisa langsung mengedit, menambah data, atau mengubah tampilan web dengan mudah memakai AI Google Antigravity tanpa takut webnya error atau rusak.
+
+### 🗺️ Peta Cepat: Mau Edit Apa? Buka File Mana?
+
+| Yang Mau Diedit | File yang Dibuka | Keterangan Singkat |
+| :--- | :--- | :--- |
+| **Ganti Jam Layanan & Link Form** | `js/config.js` | Tempat ganti jam buka lab, no WA laboran, dan tautan Google Form / Spreadsheet. |
+| **Tambah / Edit Alat & Pasang Foto** | `js/equipment-data.js` | Daftar 50 master alat lab lengkap dengan nama, spesifikasi, SOP, dan foto fisik. |
+| **Ganti Tulisan Web, Visi-Misi, Kontak** | `index.html` | Struktur teks utama web dari Halaman 1 sampai Halaman 6. |
+| **Logika Sistem & Berita Acara** | `js/app.js` | Otak web: pencarian alat, keranjang peminjaman, Berita Acara digital, dan modal SOP. |
+| **Warna, Ukuran Huruf, Tampilan** | `css/style.css` | Tampilan visual, warna kuning keemasan UNSIL (`#f59e0b`), dan mode cetak. |
+| **Foto Fisik Alat Lab** | Folder `images/equipment_gallery/` | Tempat menyimpan file gambar `.jpg` foto alat laboratorium. |
+
+---
+
+### 📸 Cara Menambah atau Mengganti Foto Alat Laboratorium
+
+1. **Simpan file foto:**
+   Masukkan file foto alat ke dalam folder `images/equipment_gallery/`, misalnya `foto-77.jpg` atau `alat-mikrometer.jpg`.
+2. **Buka file `js/equipment-data.js`:**
+   Cari nama alat yang mau diganti fotonya (tekan `Ctrl + F` lalu ketik nama alatnya).
+3. **Ubah baris `"image":`:**
+   Ganti nama filenya menjadi:
+   ```javascript
+   "image": "images/equipment_gallery/foto-77.jpg"
+   ```
+4. Simpan file (`Ctrl + S`). Foto otomatis akan langsung muncul di kartu katalog dan modal detail alat!
+
+---
+
+### 🤖 Kumpulan Prompt Siap Pakai untuk Google Antigravity / AI
+
+Tinggal salin (copy-paste) prompt di bawah ini ke dalam Google Antigravity atau asisten AI kamu:
+
+#### 📌 Prompt 1: Mau Tambah Alat Baru ke Katalog
+```text
+Halo Google Antigravity, tolong tambahkan 1 alat baru ke dalam array window.EQUIPMENT_DATA pada file js/equipment-data.js:
+- Nama Alat: [Nama Alat, contoh: Osiloskop Digital 100MHz]
+- Kategori: [Pilih salah satu: Mekanika & Kalibrasi / Listrik & Magnet / Optik & Gelombang / Termodinamika & Fluida / Elektronika & Instrumentasi / Fisika Modern & Inti]
+- Lokasi Simpan: [contoh: Lemari Instrumentasi C-1]
+- Jumlah: [contoh: 2 Unit]
+- Kondisi: Baik (Siap Pakai)
+- Foto: images/equipment_gallery/[nama-file-foto.jpg]
+- Buatkan 4 langkah SOP ringkas pengoperasiannya dalam bahasa Indonesia.
+Pastikan format objek JSON-nya valid dan tidak mengubah alat-alat yang sudah ada.
+```
+
+#### 📌 Prompt 2: Mau Update Jam Buka Lab atau Nomor WhatsApp Laboran
+```text
+Halo Google Antigravity, tolong perbarui data operasional pada file js/config.js:
+- Jam Layanan: [contoh: Senin - Jumat, 08.00 - 15.30 WIB]
+- Nomor WhatsApp Laboran: [contoh: 0812-2241-517]
+- Link Google Form Peminjaman Alat: [contoh: https://forms.gle/ContohLinkAlat]
+Pastikan penulisan objek window.SILAB_CONFIG tetap rapi dan valid.
+```
+
+#### 📌 Prompt 3: Mau Edit Teks Pengumuman / Aturan Lab di Halaman Web
+```text
+Halo Google Antigravity, tolong buka file index.html pada bagian #halaman-2 (Aturan K3 & Disiplin Lab).
+Saya ingin mengganti poin aturan nomor [X] menjadi:
+"[Tuliskan teks aturan baru di sini]"
+Pertahankan tag HTML, ikon, dan class CSS yang ada agar tampilannya tetap konsisten.
+```
+
+#### 📌 Prompt 4: Mau Ubah Format atau Teks Berita Acara (D-03 / D-04)
+```text
+Halo Google Antigravity, tolong periksa fungsi cetak dan modal Berita Acara di js/app.js.
+Saya ingin menyesuaikan bagian kop surat atau keterangan tanda tangan Berita Acara menjadi:
+- Nama Laboran: [Nama Lengkap]
+- NIP: [Nomor NIP]
+Jangan hapus ID tombol atau struktur modal #beritaAcaraModal agar fungsi klik di web tetap bekerja normal.
+```
+
+---
+
+### ⚠️ Aturan Emas untuk AI / Google Antigravity (Jangan Dilanggar!)
+
+Jika kamu meminta AI melakukan perubahan kode yang cukup banyak, selalu sertakan **4 Aturan Emas** ini di akhir instruksi kamu:
+
+1. **JANGAN gunakan framework eksternal:** Web ini murni HTML5, CSS3, dan Vanilla JavaScript. Jangan tambahkan React, Vue, Tailwind, atau bundler (Vite/Webpack).
+2. **JANGAN ubah ID navigasi halaman:** ID seksi wajib tetap `#halaman-1` sampai `#halaman-6` karena digunakan oleh sistem perpindahan tab tanpa reload.
+3. **Selalu gunakan `escapeHTML()`:** Setiap data teks dari luar yang dimasukkan ke HTML dinamis wajib dibungkus fungsi `escapeHTML(...)` agar aman dari celah keamanan.
+4. **Jaga Aksesibilitas:** Jangan menghapus atribut `aria-*`, penanganan tombol `Escape`, dan pastikan semua tombol dapat diakses keyboard.
+
+---
+
 ## 🚀 Menjalankan Secara Lokal
 
 Buka `index.html` langsung di browser, atau gunakan server pengembangan lokal:

@@ -338,8 +338,17 @@ function setMenu(open) {
    ============================================================================ */
 
 /**
+ * [CORE FUNCTION: SPA ROUTING]
  * Berpindah antar seksi halaman berdasarkan hash URL (#halaman-1 s/d #halaman-6).
  * Memperbarui status seksi yang aktif, tombol navigasi, dan judul halaman.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Fungsi ini yang membuat web bisa ganti halaman instan tanpa loading ulang (SPA).
+ * - JANGAN mengubah pola regex `^halaman-[1-6]$` atau ID `#halaman-1` s/d `#halaman-6`
+ *   karena seluruh tombol dan navigasi di index.html terhubung ke ID ini.
+ * - Untuk menambah halaman baru (misal #halaman-7), tambahkan seksi di index.html,
+ *   lalu ubah regex di bawah menjadi `^halaman-[1-7]$`.
+ *
  * @param {boolean} focus Menentukan apakah fokus keyboard dipindahkan ke judul seksi
  */
 function switchPage(focus = true) {
@@ -453,8 +462,16 @@ function getPhotoForItem(code, name) {
 }
 
 /**
+ * [CORE FUNCTION: RENDER KATALOG ALAT & FOTO FISIK]
  * Merender daftar kartu alat berdasarkan kata kunci pencarian, filter kategori, dan ukuran.
- * Menangani tampilan kosong (empty state) jika tidak ada alat yang cocok.
+ * Menangani tampilan foto instrumen laboratorium riil (image) dan skema fallback SVG.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Fungsi ini membaca data dari `window.EQUIPMENT_DATA` (file js/equipment-data.js).
+ * - Foto diambil dari properti `item.image` atau dicari via fungsi `getPhotoForItem()`.
+ * - Jika ingin mengubah teks tombol "Pinjam", ubah atribut teks di dalam kartu HTML di bawah.
+ * - JANGAN menghapus class `equipment-card`, `btn-card-action`, atau `add-to-cart-btn`
+ *   karena dibutuhkan oleh listener keranjang dan pengujian otomatis Playwright.
  */
 function renderCatalog() {
   const query = byId("searchEquipment").value.trim().toLocaleLowerCase("id");
@@ -499,9 +516,19 @@ function renderCatalog() {
    ============================================================================ */
 
 /**
- * Membuka modal dialog rincian kartu alat dan SOP pengoperasian.
- * Mengunci fokus keyboard di dalam modal untuk kepatuhan aksesibilitas WCAG.
+ * [CORE FUNCTION: MODAL DETAIL KARTU ALAT & SOP]
+ * Membuka jendela pop-up modal detail spesifikasi instrumen laboratorium, foto hero,
+ * jadwal kalibrasi, tombol cetak SOP mandiri, dan integrasi QR Code alat.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Data SOP diambil dari array `item.sop` di `js/equipment-data.js`.
+ * - Teks kop surat cetak SOP dapat disesuaikan di bagian `kartuSopContent`.
+ * - Fungsi ini juga memicu pembuatan QR Code alat secara lokal via pustaka `QRCode`.
+ * - JANGAN menghapus ID `kartuAlatModal` atau tombol penutup `closeKartuAlat` agar modal
+ *   tetap bisa ditutup dengan tombol Escape dan klik di luar area modal.
+ *
  * @param {string} code Kode unik alat (misal: "FIS-OPT-001")
+ * @param {HTMLElement|null} triggerElement Elemen pemicu klik untuk pemulihan fokus keyboard
  */
 function openKartuAlat(code, triggerElement = null) {
   const item = equipmentData.find((equipment) => equipment.code === code);
@@ -566,9 +593,17 @@ function googleFormURL(value) {
 }
 
 /**
- * Merender kartu formulir peminjaman dan berita acara.
- * Jika URL terkonfigurasi di SILAB_CONFIG.forms, tombol menjadi tautan langsung.
- * Jika belum, tombol memicu status informatif dan tautan email permintaan.
+ * [CORE FUNCTION: FORMULIR ADMINISTRASI & BERITA ACARA]
+ * Merender kartu formulir peminjaman dan berita acara di Halaman 4 (#halaman-4).
+ * Mendukung tombol langsung Berita Acara Digital in-app (D-03 & D-04) tanpa email fallback.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Data judul dan deskripsi formulir diambil dari array `formDefinitions`.
+ * - Tautan Google Form diambil dari file `js/config.js` via `config.forms?.[key]`.
+ * - Jika Google Form belum diisi, tombol D-03 & D-04 otomatis menjadi tombol
+ *   "📄 Buka Berita Acara Digital" yang langsung membuka modal di dalam web.
+ * - JANGAN mengubah class `open-inapp-ba-btn` atau atribut `data-form` agar tombol
+ *   Berita Acara dan pengujian Playwright tetap berfungsi normal.
  */
 function renderForms() {
   byId("formsContainer").innerHTML = formDefinitions
@@ -676,6 +711,15 @@ function triggerHaptic(ms) {
   }
 }
 
+/**
+ * [CORE FUNCTION: SISTEM KERANJANG PINJAM ALAT (CART/BASKET)]
+ * Memperbarui tampilan indikator jumlah alat di keranjang (badge navbar, tombol floating,
+ * dan bottom tab bar pada tampilan mobile).
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Data keranjang disimpan secara otomatis ke localStorage browser (`silab_equipment_cart_v1`).
+ * - Batas maksimal jumlah pinjam per item adalah 20 unit (dapat disesuaikan di `addToCart`).
+ */
 function updateCartUI() {
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const badge = byId("cartBadge");
@@ -1009,7 +1053,21 @@ function closeTicketModal() {
 }
 
 /**
- * Menampilkan modal dialog Berita Acara resmi (D-03 & D-04)
+ * [CORE FUNCTION: MODAL BERITA ACARA DIGITAL (D-03 & D-04)]
+ * Menampilkan modal dialog dokumen resmi Berita Acara Peminjaman (D-03)
+ * dan Pengembalian (D-04) FKIP Fisika UNSIL langsung di layar tanpa email.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY:
+ * - Fungsi ini dapat dipanggil kapan saja tanpa harus meminjam alat terlebih dahulu.
+ * - Tab yang aktif dikontrol oleh parameter `tab`:
+ *   * "D03" = Berita Acara Peminjaman
+ *   * "D04" = Berita Acara Pengembalian
+ * - Pergantian tab dokumen dapat dilakukan via tombol `#switchBATabBtn`.
+ * - Tombol cetak memicu fungsi `window.print()` dengan isolasi CSS khusus cetak.
+ * - JANGAN mengubah ID `#beritaAcaraModal` agar fungsi buka-tutup modal tetap sinkron.
+ *
+ * @param {Object|null} ticket Data tiket peminjaman (opsional, ada fallback data contoh)
+ * @param {string} tab Kode tab yang ingin dibuka ("D03" atau "D04")
  */
 function showBeritaAcaraModal(ticket = null, tab = "D03") {
   const activeTicket = ticket ||

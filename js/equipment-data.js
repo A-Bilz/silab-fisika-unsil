@@ -3,6 +3,23 @@
  * Master Data Inventaris Resmi: Dokumen C-01/UN58.10.6/Lab/2026
  * Terdiri dari 25 Alat Besar dan 25 Alat Kecil hasil sinkronisasi riil.
  * Dilengkapi foto fisik instrumen riil dan skema vektor SVG blueprint resolusi tinggi.
+ *
+ * 🌸 PANDUAN CIMOT / GOOGLE ANTIGRAVITY (CARA EDIT / TAMBAH ALAT):
+ * 1. Menambah Alat Baru:
+ *    Salin satu blok objek `{ ... }`, tempel di urutan paling bawah sebelum tanda `];`.
+ *    Pastikan kode unik (code) belum pernah dipakai.
+ * 2. Mengubah Foto Alat:
+ *    Ganti nilai properti `"image": "images/equipment_gallery/nama-foto.jpg"`
+ *    dengan nama file foto baru yang sudah disimpan di folder `images/equipment_gallery/`.
+ * 3. Kategori yang Valid (Otomatis masuk filter dropdown):
+ *    - "Mekanika & Kalibrasi"
+ *    - "Listrik & Magnet"
+ *    - "Optik & Gelombang"
+ *    - "Termodinamika & Fluida"
+ *    - "Elektronika & Instrumentasi"
+ *    - "Fisika Modern & Inti"
+ * 4. Langkah SOP:
+ *    Tuliskan langkah-langkah di dalam array `"sop": [ "Langkah 1", "Langkah 2", ... ]`.
  */
 window.EQUIPMENT_DATA = [
   {
