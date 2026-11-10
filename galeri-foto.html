@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Galeri Penamaan Foto Lab Fisika - SILAB UNSIL</title>
+    <meta
+      name="description"
+      content="Galeri identifikasi dan penamaan foto instrumen riil Laboratorium Pendidikan Fisika FKIP Universitas Siliwangi."
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .gallery-app {
+        min-height: 100vh;
+        background: #090e1a;
+        color: #f1f5f9;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+        padding-bottom: 80px;
+      }
+      .gallery-header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: rgba(9, 14, 26, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid #1e293b;
+        padding: 12px 16px;
+      }
+      .gallery-header-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .gallery-back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #38bdf8;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 600;
+        padding: 6px 10px;
+        border-radius: 8px;
+        background: rgba(56, 189, 248, 0.1);
+        border: 1px solid rgba(56, 189, 248, 0.2);
+      }
+      .gallery-back-link:hover {
+        background: rgba(56, 189, 248, 0.2);
+      }
+      .gallery-stats-badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        background: #0369a1;
+        color: #ffffff;
+      }
+      .gallery-title-box h1 {
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin: 0;
+        color: #f8fafc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .gallery-title-box p {
+        margin: 2px 0 0 0;
+        font-size: 0.8rem;
+        color: #94a3b8;
+      }
+      .gallery-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #0d1526;
+        border-bottom: 1px solid #1e293b;
+      }
+      .gallery-search-wrap {
+        position: relative;
+        width: 100%;
+      }
+      .gallery-search-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 14px 10px 38px;
+        background: #152238;
+        border: 1px solid #2d3f5e;
+        border-radius: 10px;
+        color: #f8fafc;
+        font-size: 0.875rem;
+      }
+      .gallery-search-input:focus {
+        outline: none;
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      }
+      .gallery-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: #64748b;
+        pointer-events: none;
+      }
+      .gallery-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn-gallery-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #1e293b;
+        color: #f1f5f9;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-gallery-action:hover {
+        background: #334155;
+      }
+      .btn-gallery-primary {
+        background: #0369a1;
+        color: #ffffff;
+        border-color: #0284c7;
+      }
+      .btn-gallery-primary:hover {
+        background: #075985;
+      }
+      .gallery-filters {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+      }
+      .filter-chip {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: #152238;
+        border: 1px solid #2d3f5e;
+        color: #94a3b8;
+        border-radius: 9999px;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+      .filter-chip.active {
+        background: #0369a1;
+        border-color: #38bdf8;
+        color: #ffffff;
+      }
+      .gallery-container {
+        padding: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      @media (min-width: 560px) {
+        .gallery-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      @media (min-width: 900px) {
+        .gallery-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (min-width: 1200px) {
+        .gallery-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      .photo-card {
+        background: #111a2e;
+        border: 1px solid #1e293b;
+        border-radius: 14px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition:
+          border-color 0.15s ease,
+          transform 0.15s ease;
+      }
+      .photo-card.named {
+        border-color: #059669;
+      }
+      .photo-card:focus-within {
+        border-color: #38bdf8;
+      }
+      .photo-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 12px;
+        background: #0d1526;
+        border-bottom: 1px solid #1e293b;
+      }
+      .photo-card-num {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #38bdf8;
+      }
+      .photo-card-status {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 8px;
+        border-radius: 9999px;
+      }
+      .photo-card-status.unnamed {
+        background: #334155;
+        color: #cbd5e1;
+      }
+      .photo-card-status.named {
+        background: #065f46;
+        color: #a7f3d0;
+      }
+      .photo-img-box {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        background: #080c16;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      .photo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.2s ease;
+      }
+      .photo-img-box:hover .photo-img {
+        transform: scale(1.03);
+      }
+      .photo-zoom-hint {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #e2e8f0;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        pointer-events: none;
+      }
+      .photo-form {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+      .photo-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        display: block;
+      }
+      .photo-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        background: #17243c;
+        border: 1px solid #293d61;
+        border-radius: 8px;
+        color: #ffffff;
+        font-size: 0.825rem;
+      }
+      .photo-input:focus {
+        outline: none;
+        border-color: #38bdf8;
+      }
+      .photo-notes {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 6px 10px;
+        background: #152238;
+        border: 1px solid #223450;
+        border-radius: 6px;
+        color: #cbd5e1;
+        font-size: 0.75rem;
+        resize: vertical;
+        min-height: 40px;
+      }
+      .photo-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 4px;
+      }
+      .photo-saved-indicator {
+        font-size: 0.7rem;
+        color: #10b981;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+      .photo-saved-indicator.show {
+        opacity: 1;
+      }
+      .btn-quick-save {
+        background: #0369a1;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-quick-save:hover {
+        background: #075985;
+      }
+
+      /* Lightbox Modal */
+      .lightbox-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: rgba(0, 0, 0, 0.92);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+      .lightbox-overlay.active {
+        display: flex;
+      }
+      .lightbox-header {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #ffffff;
+        z-index: 110;
+      }
+      .lightbox-title {
+        font-size: 1rem;
+        font-weight: 700;
+      }
+      .lightbox-close {
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        border: none;
+        border-radius: 9999px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.25rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .lightbox-img-wrap {
+        max-width: 95vw;
+        max-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .lightbox-img {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      }
+      .lightbox-nav {
+        position: absolute;
+        bottom: 24px;
+        display: flex;
+        gap: 16px;
+        z-index: 110;
+      }
+      .lightbox-btn {
+        background: rgba(15, 23, 42, 0.85);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .lightbox-btn:hover {
+        background: rgba(30, 41, 59, 0.95);
+      }
+
+      /* Toast */
+      .toast-msg {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: #059669;
+        color: #ffffff;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        z-index: 200;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        pointer-events: none;
+      }
+      .toast-msg.show {
+        transform: translateX(-50%) translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery-app">
+      <header class="gallery-header">
+        <div class="gallery-header-top">
+          <a href="index.html#halaman-5" class="gallery-back-link">
+            ← Kembali ke Katalog
+          </a>
+          <span id="galleryProgressBadge" class="gallery-stats-badge">
+            0 / 76 Dinamai
+          </span>
+        </div>
+        <div class="gallery-title-box">
+          <h1>📷 Galeri Penamaan Foto Lab Fisika</h1>
+          <p>
+            Buka tiap foto, ketik atau pilih nama alatnya. Tersimpan otomatis di
+            HP kamu!
+          </p>
+        </div>
+      </header>
+
+      <nav class="gallery-toolbar" aria-label="Alat bantu pencarian dan aksi galeri">
+        <div class="gallery-search-wrap">
+          <svg
+            class="gallery-search-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="search"
+            id="gallerySearchInput"
+            class="gallery-search-input"
+            placeholder="Cari nomor foto (contoh: 12) atau nama alat..."
+            aria-label="Cari foto alat"
+          />
+        </div>
+
+        <div class="gallery-filters" role="tablist" aria-label="Filter status">
+          <button
+            class="filter-chip active"
+            data-filter="all"
+            role="tab"
+            aria-selected="true"
+          >
+            Semua (76)
+          </button>
+          <button
+            class="filter-chip"
+            data-filter="unnamed"
+            role="tab"
+            aria-selected="false"
+          >
+            Belum Dinamai
+          </button>
+          <button
+            class="filter-chip"
+            data-filter="named"
+            role="tab"
+            aria-selected="false"
+          >
+            Sudah Dinamai
+          </button>
+        </div>
+
+        <div class="gallery-actions">
+          <button
+            id="copySummaryBtn"
+            class="btn-gallery-action btn-gallery-primary"
+            type="button"
+          >
+            📋 Salin Daftar Nama Alat
+          </button>
+          <button id="exportCsvBtn" class="btn-gallery-action" type="button">
+            ⬇️ Unduh CSV
+          </button>
+          <a
+            href="index.html#halaman-5"
+            class="btn-gallery-action"
+            style="text-decoration: none"
+          >
+            🔄 Lihat di Katalog Web
+          </a>
+        </div>
+      </nav>
+
+      <main class="gallery-container">
+        <div id="galleryGrid" class="gallery-grid" aria-live="polite"></div>
+      </main>
+
+      <!-- Datalist untuk autocomplete 50 nama alat lab resmi -->
+      <datalist id="labEquipmentDatalist"></datalist>
+
+      <!-- Lightbox Modal Fullscreen -->
+      <div
+        id="lightboxModal"
+        class="lightbox-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Peninjau Foto Instrumen"
+      >
+        <div class="lightbox-header">
+          <span id="lightboxTitle" class="lightbox-title">Foto #01</span>
+          <button
+            id="lightboxCloseBtn"
+            class="lightbox-close"
+            type="button"
+            aria-label="Tutup peninjau foto"
+          >
+            ✕
+          </button>
+        </div>
+        <div class="lightbox-img-wrap">
+          <img
+            id="lightboxImg"
+            class="lightbox-img"
+            src=""
+            alt="Pratinjau Foto Alat"
+          />
+        </div>
+        <div class="lightbox-nav">
+          <button
+            id="lightboxPrevBtn"
+            class="lightbox-btn"
+            type="button"
+            aria-label="Foto sebelumnya"
+          >
+            ← Sebelumnya
+          </button>
+          <button
+            id="lightboxNextBtn"
+            class="lightbox-btn"
+            type="button"
+            aria-label="Foto selanjutnya"
+          >
+            Selanjutnya →
+          </button>
+        </div>
+      </div>
+
+      <div id="toastMessage" class="toast-msg" role="status" aria-live="polite">
+        Daftar nama berhasil disalin!
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/gallery-manifest.js"></script>
+    <script src="js/equipment-data.js"></script>
+    <script>
+      (function () {
+        const STORAGE_KEY = "silab_photo_mapping_v1";
+        let photoData = window.GALLERY_MANIFEST || [];
+        let mapping = {};
+
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) mapping = JSON.parse(raw);
+        } catch (e) {
+          console.error("Gagal membaca localStorage mapping", e);
+        }
+
+        const gridEl = document.getElementById("galleryGrid");
+        const datalistEl = document.getElementById("labEquipmentDatalist");
+        const searchInput = document.getElementById("gallerySearchInput");
+        const progressBadge = document.getElementById("galleryProgressBadge");
+        const filterChips = document.querySelectorAll(".filter-chip");
+        const copySummaryBtn = document.getElementById("copySummaryBtn");
+        const exportCsvBtn = document.getElementById("exportCsvBtn");
+        const toastEl = document.getElementById("toastMessage");
+
+        // Lightbox elements
+        const lightbox = document.getElementById("lightboxModal");
+        const lightboxImg = document.getElementById("lightboxImg");
+        const lightboxTitle = document.getElementById("lightboxTitle");
+        const lightboxCloseBtn = document.getElementById("lightboxCloseBtn");
+        const lightboxPrevBtn = document.getElementById("lightboxPrevBtn");
+        const lightboxNextBtn = document.getElementById("lightboxNextBtn");
+        let currentLightboxIndex = 0;
+
+        let currentFilter = "all";
+        let searchQuery = "";
+
+        // Populate Datalist
+        if (window.EQUIPMENT_DATA && Array.isArray(window.EQUIPMENT_DATA)) {
+          window.EQUIPMENT_DATA.forEach((eq) => {
+            const opt = document.createElement("option");
+            opt.value = `${eq.code} - ${eq.name}`;
+            datalistEl.appendChild(opt);
+          });
+        }
+
+        function updateProgress() {
+          const total = photoData.length;
+          const named = photoData.filter(
+            (p) => mapping[p.filename] && mapping[p.filename].name?.trim(),
+          ).length;
+          progressBadge.textContent = `${named} / ${total} Dinamai`;
+        }
+
+        function renderGallery() {
+          gridEl.innerHTML = "";
+          const q = searchQuery.toLowerCase().trim();
+
+          const filtered = photoData.filter((item) => {
+            const currentItem = mapping[item.filename] || {};
+            const itemName = (currentItem.name || "").toLowerCase();
+            const itemNotes = (currentItem.notes || "").toLowerCase();
+            const numStr = String(item.index);
+
+            const matchSearch =
+              !q ||
+              numStr.includes(q) ||
+              itemName.includes(q) ||
+              itemNotes.includes(q) ||
+              item.filename.toLowerCase().includes(q);
+
+            if (!matchSearch) return false;
+
+            const isNamed = !!(currentItem.name && currentItem.name.trim());
+            if (currentFilter === "named") return isNamed;
+            if (currentFilter === "unnamed") return !isNamed;
+            return true;
+          });
+
+          if (filtered.length === 0) {
+            gridEl.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: #94a3b8;">
+              <p style="font-size: 1.1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px;">Tidak ada foto yang cocok</p>
+              <p style="font-size: 0.85rem;">Coba bersihkan pencarian atau ubah tab filter di atas.</p>
+            </div>
+          `;
+            return;
+          }
+
+          filtered.forEach((item) => {
+            const saved = mapping[item.filename] || { name: "", notes: "" };
+            const isNamed = !!(saved.name && saved.name.trim());
+
+            const card = document.createElement("article");
+            card.className = `photo-card ${isNamed ? "named" : ""}`;
+            card.id = `card-${item.index}`;
+
+            card.innerHTML = `
+            <div class="photo-card-top">
+              <span class="photo-card-num">Foto #${String(item.index).padStart(2, "0")}</span>
+              <span class="photo-card-status ${isNamed ? "named" : "unnamed"}">
+                ${isNamed ? "✓ Sudah Dinamai" : "Belum Dinamai"}
+              </span>
+            </div>
+            <div class="photo-img-box" data-idx="${item.index}" tabindex="0" role="button" aria-label="Buka foto nomor ${item.index}">
+              <img class="photo-img" src="${item.path}" alt="Foto alat nomor ${item.index}" loading="lazy" />
+              <div class="photo-zoom-hint">
+                🔍 Perbesar
+              </div>
+            </div>
+            <div class="photo-form">
+              <label class="photo-label" for="input-${item.index}">Nama Alat:</label>
+              <input 
+                id="input-${item.index}" 
+                class="photo-input" 
+                type="text" 
+                list="labEquipmentDatalist" 
+                placeholder="Pilih atau ketik nama alat..." 
+                value="${saved.name || ""}" 
+                data-filename="${item.filename}"
+              />
+              <label class="photo-label" for="notes-${item.index}">Keterangan Tambahan:</label>
+              <textarea 
+                id="notes-${item.index}" 
+                class="photo-notes" 
+                placeholder="Kondisi, tampak depan/atas, kelengkapan..."
+                data-filename="${item.filename}"
+              >${saved.notes || ""}</textarea>
+              <div class="photo-footer">
+                <span class="photo-saved-indicator" id="saved-${item.index}">✓ Tersimpan</span>
+                <button class="btn-quick-save" type="button" data-index="${item.index}">Simpan</button>
+              </div>
+            </div>
+          `;
+
+            gridEl.appendChild(card);
+          });
+
+          updateProgress();
+        }
+
+        function saveItem(index) {
+          const item = photoData.find((p) => p.index === index);
+          if (!item) return;
+
+          const nameInput = document.getElementById(`input-${index}`);
+          const notesInput = document.getElementById(`notes-${index}`);
+          const indicator = document.getElementById(`saved-${index}`);
+          const card = document.getElementById(`card-${index}`);
+
+          if (!nameInput || !notesInput) return;
+
+          const nameVal = nameInput.value.trim();
+          const notesVal = notesInput.value.trim();
+
+          mapping[item.filename] = {
+            index: item.index,
+            filename: item.filename,
+            path: item.path,
+            name: nameVal,
+            notes: notesVal,
+            updatedAt: new Date().toISOString(),
+          };
+
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mapping));
+          } catch (e) {
+            console.error("Gagal simpan ke localStorage", e);
+          }
+
+          if (indicator) {
+            indicator.classList.add("show");
+            setTimeout(() => indicator.classList.remove("show"), 1500);
+          }
+
+          if (card) {
+            const statusEl = card.querySelector(".photo-card-status");
+            if (nameVal) {
+              card.classList.add("named");
+              if (statusEl) {
+                statusEl.className = "photo-card-status named";
+                statusEl.textContent = "✓ Sudah Dinamai";
+              }
+            } else {
+              card.classList.remove("named");
+              if (statusEl) {
+                statusEl.className = "photo-card-status unnamed";
+                statusEl.textContent = "Belum Dinamai";
+              }
+            }
+          }
+
+          updateProgress();
+        }
+
+        // Event delegation for grid
+        gridEl.addEventListener("click", (e) => {
+          const saveBtn = e.target.closest(".btn-quick-save");
+          if (saveBtn) {
+            const idx = parseInt(saveBtn.dataset.index, 10);
+            saveItem(idx);
+            return;
+          }
+
+          const imgBox = e.target.closest(".photo-img-box");
+          if (imgBox) {
+            const idx = parseInt(imgBox.dataset.idx, 10);
+            openLightbox(idx);
+          }
+        });
+
+        // Keydown support for accessibility
+        gridEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            const imgBox = e.target.closest(".photo-img-box");
+            if (imgBox) {
+              e.preventDefault();
+              const idx = parseInt(imgBox.dataset.idx, 10);
+              openLightbox(idx);
+            }
+          }
+        });
+
+        // Auto-save on input change
+        gridEl.addEventListener("change", (e) => {
+          if (
+            e.target.classList.contains("photo-input") ||
+            e.target.classList.contains("photo-notes")
+          ) {
+            const match = e.target.id.match(/\d+/);
+            if (match) {
+              saveItem(parseInt(match[0], 10));
+            }
+          }
+        });
+
+        // Search listener
+        searchInput.addEventListener("input", (e) => {
+          searchQuery = e.target.value;
+          renderGallery();
+        });
+
+        // Filters listener
+        filterChips.forEach((chip) => {
+          chip.addEventListener("click", () => {
+            filterChips.forEach((c) => {
+              c.classList.remove("active");
+              c.setAttribute("aria-selected", "false");
+            });
+            chip.classList.add("active");
+            chip.setAttribute("aria-selected", "true");
+            currentFilter = chip.dataset.filter;
+            renderGallery();
+          });
+        });
+
+        // Lightbox Functions
+        function openLightbox(index) {
+          const item = photoData.find((p) => p.index === index);
+          if (!item) return;
+          currentLightboxIndex = index;
+          lightboxImg.src = item.path;
+          const saved = mapping[item.filename];
+          const nameText = saved && saved.name ? ` - ${saved.name}` : "";
+          lightboxTitle.textContent = `Foto #${String(item.index).padStart(2, "0")}${nameText}`;
+          lightbox.classList.add("active");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeLightbox() {
+          lightbox.classList.remove("active");
+          document.body.style.overflow = "";
+        }
+
+        lightboxCloseBtn.addEventListener("click", closeLightbox);
+        lightbox.addEventListener("click", (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+
+        lightboxPrevBtn.addEventListener("click", () => {
+          if (currentLightboxIndex > 1) {
+            openLightbox(currentLightboxIndex - 1);
+          } else {
+            openLightbox(photoData.length);
+          }
+        });
+
+        lightboxNextBtn.addEventListener("click", () => {
+          if (currentLightboxIndex < photoData.length) {
+            openLightbox(currentLightboxIndex + 1);
+          } else {
+            openLightbox(1);
+          }
+        });
+
+        window.addEventListener("keydown", (e) => {
+          if (!lightbox.classList.contains("active")) return;
+          if (e.key === "Escape") closeLightbox();
+          if (e.key === "ArrowLeft") lightboxPrevBtn.click();
+          if (e.key === "ArrowRight") lightboxNextBtn.click();
+        });
+
+        // Copy Summary
+        copySummaryBtn.addEventListener("click", () => {
+          let text = "DAFTAR PENAMAAN FOTO ALAT LAB FISIKA UNSIL:\n";
+          text +=
+            "===============================================================\n";
+          let count = 0;
+          photoData.forEach((item) => {
+            const saved = mapping[item.filename];
+            const name = saved && saved.name ? saved.name : "(Belum dinamai)";
+            const notes =
+              saved && saved.notes ? ` [Catatan: ${saved.notes}]` : "";
+            text += `Foto #${String(item.index).padStart(2, "0")}: ${name}${notes}\n`;
+            if (saved && saved.name) count++;
+          });
+          text +=
+            "===============================================================\n";
+          text += `Total: ${count} dari ${photoData.length} foto telah dinamai.\n`;
+
+          navigator.clipboard
+            .writeText(text)
+            .then(() => {
+              showToast("Daftar 76 foto berhasil disalin ke clipboard!");
+            })
+            .catch(() => {
+              showToast("Gagal menyalin, periksa izin peramban.");
+            });
+        });
+
+        // Export CSV
+        exportCsvBtn.addEventListener("click", () => {
+          let csv =
+            "No,Nomor Foto,Nama Berkas,Nama Alat,Keterangan,Waktu Simpan\n";
+          photoData.forEach((item) => {
+            const saved = mapping[item.filename] || {};
+            const cleanName = (saved.name || "").replace(/"/g, '""');
+            const cleanNotes = (saved.notes || "").replace(/"/g, '""');
+            csv += `"${item.index}","Foto #${String(item.index).padStart(2, "0")}","${item.filename}","${cleanName}","${cleanNotes}","${saved.updatedAt || ""}"\n`;
+          });
+
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `rekap_penamaan_foto_lab_${new Date().toISOString().slice(0, 10)}.csv`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast("Berkas CSV berhasil diunduh!");
+        });
+
+        function showToast(msg) {
+          toastEl.textContent = msg;
+          toastEl.classList.add("show");
+          setTimeout(() => toastEl.classList.remove("show"), 2500);
+        }
+
+        // Initial Render
+        renderGallery();
+      })();
+    </script>
+  </body>
+</html>

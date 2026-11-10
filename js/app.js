@@ -456,13 +456,37 @@ function renderCatalog() {
     return matchQuery && matchCategory && matchSize;
   });
 
+  let photoMap = {};
+  try {
+    const rawMap = localStorage.getItem("silab_photo_mapping_v1");
+    if (rawMap) photoMap = JSON.parse(rawMap);
+  } catch (_) {}
+
+  const getPhotoForItem = (code, name) => {
+    for (const k in photoMap) {
+      const entry = photoMap[k];
+      if (entry && entry.name) {
+        const n = entry.name.toLowerCase();
+        if (n.includes(code.toLowerCase()) || n.includes(name.toLowerCase())) {
+          return entry.path;
+        }
+      }
+    }
+    return null;
+  };
+
   byId("resultCount").textContent =
     `${filtered.length} dari ${equipmentData.length} alat ditampilkan`;
   byId("catalogContainer").innerHTML = filtered.length
     ? filtered
         .map(
-          (item) =>
-            `<article class="card equipment-card" data-code="${escapeHTML(item.code)}"><div class="card-badges-row"><span class="code">${escapeHTML(item.code)}</span><span class="size-badge ${item.sizeType === "BESAR" ? "badge-besar" : "badge-kecil"}">${item.sizeType === "BESAR" ? "Alat Besar" : "Alat Kecil"}</span><span class="cond-badge ${item.condition.includes("Baik") ? "cond-good" : "cond-warning"}">${escapeHTML(item.condition)}</span></div><div class="equipment-blueprint-thumb" aria-hidden="true">${item.svgBlueprint || ""}</div><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Stok: <strong>${escapeHTML(item.quantity)}</strong></p><p class="shelf">${escapeHTML(item.location)}</p><div class="card-actions-grid"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><div class="card-btn-split"><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button><button class="btn btn-primary-soft direct-loan-btn" data-direct-loan="${escapeHTML(item.code)}" aria-label="Ajukan pinjam ${escapeHTML(item.name)}">Ajukan Pinjam</button></div></div></article>`,
+          (item) => {
+            const mappedPhoto = getPhotoForItem(item.code, item.name);
+            const visualThumb = mappedPhoto
+              ? `<img src="${escapeHTML(mappedPhoto)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:6px;" loading="lazy">`
+              : (item.svgBlueprint || "");
+            return `<article class="card equipment-card" data-code="${escapeHTML(item.code)}"><div class="card-badges-row"><span class="code">${escapeHTML(item.code)}</span><span class="size-badge ${item.sizeType === "BESAR" ? "badge-besar" : "badge-kecil"}">${item.sizeType === "BESAR" ? "Alat Besar" : "Alat Kecil"}</span><span class="cond-badge ${item.condition.includes("Baik") ? "cond-good" : "cond-warning"}">${escapeHTML(item.condition)}</span></div><div class="equipment-blueprint-thumb" aria-hidden="true">${visualThumb}</div><h2>${escapeHTML(item.name)}</h2><p class="category">${escapeHTML(item.category)}</p><p class="state">Stok: <strong>${escapeHTML(item.quantity)}</strong></p><p class="shelf">${escapeHTML(item.location)}</p><div class="card-actions-grid"><button class="btn outline" data-equipment="${escapeHTML(item.code)}" aria-label="Lihat kartu alat & SOP: ${escapeHTML(item.name)}">Lihat kartu alat & SOP</button><div class="card-btn-split"><button class="btn btn-secondary add-cart-btn" data-add-cart="${escapeHTML(item.code)}" aria-label="Tambah ${escapeHTML(item.name)} ke keranjang peminjaman">+ Keranjang</button><button class="btn btn-primary-soft direct-loan-btn" data-direct-loan="${escapeHTML(item.code)}" aria-label="Ajukan pinjam ${escapeHTML(item.name)}">Ajukan Pinjam</button></div></div></article>`;
+          }
         )
         .join("")
     : '<div class="empty-state"><h2>Tidak ada alat yang cocok</h2><p>Coba kata kunci lain atau gunakan tombol Reset filter.</p></div>';
