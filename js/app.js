@@ -579,11 +579,31 @@ function saveCart() {
   updateCartUI();
 }
 
+function triggerHaptic(ms) {
+  if (
+    typeof navigator !== "undefined" &&
+    navigator.userActivation?.hasBeenActive &&
+    typeof navigator.vibrate === "function"
+  ) {
+    try {
+      navigator.vibrate(ms);
+    } catch (_) {}
+  }
+}
+
 function updateCartUI() {
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const badge = byId("cartBadge");
   const floatingBtn = byId("cartFloatingBtn");
-  if (badge) badge.textContent = String(totalCount);
+  if (badge) {
+    if (badge.textContent !== String(totalCount)) {
+      badge.classList.remove("pop");
+      void badge.offsetWidth;
+      badge.textContent = String(totalCount);
+      badge.classList.add("pop");
+      triggerHaptic(15);
+    }
+  }
   if (floatingBtn) {
     floatingBtn.hidden = totalCount === 0;
   }
@@ -601,6 +621,7 @@ function addToCart(code) {
     cart.push({ code: item.code, name: item.name, qty: 1 });
   }
   saveCart();
+  triggerHaptic(15);
   showToast(`✓ ${item.name} ditambahkan ke keranjang`);
 }
 
@@ -613,6 +634,7 @@ function updateCartQty(code, delta) {
     cart = cart.filter((c) => c.code !== code);
   }
   saveCart();
+  triggerHaptic(12);
 }
 
 function removeFromCart(code) {
@@ -680,6 +702,7 @@ let toastTimeout;
 function showToast(message) {
   const toast = byId("toastNotification");
   if (!toast) return;
+  triggerHaptic(10);
   clearTimeout(toastTimeout);
   toast.textContent = message;
   toast.hidden = false;
