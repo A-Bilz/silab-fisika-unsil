@@ -393,6 +393,13 @@ function switchPage(focus = true) {
     else link.removeAttribute("aria-current");
   });
 
+  // Perbarui status navigasi tab bar mobile
+  document.querySelectorAll(".mobile-tab-item").forEach((item) => {
+    if (item.dataset.page) {
+      item.classList.toggle("active", item.dataset.page === target);
+    }
+  });
+
   setMenu(false);
   const heading = byId(target).querySelector("h1");
   document.title = `${document.querySelector('.nav-btn[aria-current="page"]').textContent} | SILAB FISIKA UNSIL`;
@@ -595,6 +602,7 @@ function updateCartUI() {
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const badge = byId("cartBadge");
   const floatingBtn = byId("cartFloatingBtn");
+  const mobileTabBadge = byId("mobileTabBadge");
   if (badge) {
     if (badge.textContent !== String(totalCount)) {
       badge.classList.remove("pop");
@@ -603,6 +611,10 @@ function updateCartUI() {
       badge.classList.add("pop");
       triggerHaptic(15);
     }
+  }
+  if (mobileTabBadge) {
+    mobileTabBadge.textContent = String(totalCount);
+    mobileTabBadge.hidden = totalCount === 0;
   }
   if (floatingBtn) {
     floatingBtn.hidden = totalCount === 0;
@@ -912,8 +924,42 @@ function init() {
 
   // Tombol floating keranjang & penutupan drawer
   byId("cartFloatingBtn")?.addEventListener("click", openCartDrawer);
+  byId("mobileCartTabBtn")?.addEventListener("click", openCartDrawer);
   byId("closeCartBtn")?.addEventListener("click", closeCartDrawer);
   byId("cartBackdrop")?.addEventListener("click", closeCartDrawer);
+
+  // Interaksi simulasi prisma optik (Fisika Hidup)
+  const prismSlider = byId("prismAngleSlider");
+  if (prismSlider) {
+    const updatePrismRay = () => {
+      const theta1Deg = parseFloat(prismSlider.value);
+      const theta1Rad = (theta1Deg * Math.PI) / 180;
+      const nPrism = 1.52;
+      const sinTheta2 = Math.sin(theta1Rad) / nPrism;
+      const theta2Rad = Math.asin(sinTheta2);
+      const theta2Deg = (theta2Rad * 180) / Math.PI;
+
+      const readout = byId("prismAngleReadout");
+      if (readout) readout.textContent = `${theta1Deg.toFixed(1)}°`;
+      const refractReadout = byId("prismRefractReadout");
+      if (refractReadout) {
+        refractReadout.innerHTML = `Sudut Bias: <strong>&theta;₂ = ${theta2Deg.toFixed(1)}&deg;</strong>`;
+      }
+
+      const delta = theta1Deg - 45;
+      const outY = 177 + delta * 0.55;
+      const beamEl = byId("prismBeamRay");
+      if (beamEl) {
+        beamEl.setAttribute(
+          "d",
+          `M0 188H164L278 ${outY.toFixed(1)}L440 ${(125 + delta * 0.45).toFixed(1)}M278 ${outY.toFixed(1)}L440 ${(156 + delta * 0.35).toFixed(1)}M278 ${outY.toFixed(1)}L440 ${(188 + delta * 0.25).toFixed(1)}M278 ${outY.toFixed(1)}L440 ${(218 + delta * 0.15).toFixed(1)}`,
+        );
+      }
+      const rayOut = byId("rayOutPoint");
+      if (rayOut) rayOut.setAttribute("cy", outY.toFixed(1));
+    };
+    prismSlider.addEventListener("input", updatePrismRay);
+  }
 
   // Stepper & hapus item di dalam keranjang
   byId("cartItemsList")?.addEventListener("click", (event) => {
@@ -1078,9 +1124,19 @@ function init() {
     if (isOpen) {
       badge.className = "lab-status-badge open";
       badge.innerHTML = '<span class="lab-status-dot"></span> Buka (08.00 - 15.30 WIB)';
+      const heroStatus = byId("heroLiveStatus");
+      if (heroStatus) {
+        heroStatus.className = "app-live-status-pill open";
+        heroStatus.innerHTML = '<span class="status-pulse-dot"></span><span class="status-pill-text">Buka Sekarang</span>';
+      }
     } else {
       badge.className = "lab-status-badge closed";
       badge.innerHTML = '<span class="lab-status-dot"></span> Tutup (Buka Senin - Jumat 08.00)';
+      const heroStatus = byId("heroLiveStatus");
+      if (heroStatus) {
+        heroStatus.className = "app-live-status-pill closed";
+        heroStatus.innerHTML = '<span class="status-pulse-dot"></span><span class="status-pill-text">Tutup</span>';
+      }
     }
   }
   updateLabStatus();
